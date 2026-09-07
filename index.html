@@ -41,15 +41,25 @@
         <strong id="teamText">1 Player + 3 AI</strong>
         <small id="scoreText">Score 0</small>
       </article>
+      <article class="hud-card dash-card">
+        <span>DASH</span>
+        <strong id="dashText">READY</strong>
+        <div class="meter dash-meter"><i id="dashBar"></i></div>
+      </article>
     </section>
 
     <section class="game-layout">
       <aside class="side-panel left-panel">
         <h2>BUILD</h2>
         <div class="build-list" id="buildList"></div>
+        <div id="buildInfo" class="build-info empty">
+          <strong>건물 선택 없음</strong>
+          <p>건물을 선택하면 토대 크기와 기능 설명이 표시됩니다.</p>
+        </div>
         <div class="panel-note">
-          <b>건축:</b> 항목 선택 → 빈 공간 클릭<br />
-          <b>철거:</b> 우클릭 또는 X
+          <b>건축:</b> 항목 선택 → 격자 슬롯 클릭<br />
+          <b>선택 해제:</b> 같은 숫자키/버튼 다시 누르기<br />
+          <b>철거:</b> 우클릭
         </div>
       </aside>
 
@@ -62,13 +72,7 @@
       <aside class="side-panel right-panel">
         <h2>SQUAD</h2>
         <div id="squadList" class="squad-list"></div>
-        <h2>ORDERS</h2>
-        <div class="order-grid">
-          <button data-order="follow">따라와</button>
-          <button data-order="defend">HEART 방어</button>
-          <button data-order="gather">자원 채집</button>
-          <button data-order="repair">수리 우선</button>
-        </div>
+        <div class="panel-note ai-note">AI 동료는 상황과 역할을 스스로 판단해 전투, 수리, 건축, 채집을 수행합니다.</div>
         <h2>UPGRADES</h2>
         <div class="upgrade-list">
           <button id="upgradeWeapon">무기 강화 <small>25 crystal</small></button>
@@ -82,9 +86,8 @@
       <span><kbd>WASD</kbd> 이동</span>
       <span><kbd>Mouse</kbd> 조준</span>
       <span><kbd>LMB</kbd> 공격/건축</span>
-      <span><kbd>1-4</kbd> 건축 선택</span>
+      <span><kbd>1-4</kbd> 건축 선택/해제</span>
       <span><kbd>Space</kbd> 대시</span>
-      <span><kbd>F</kbd> 상호작용</span>
     </footer>
   </main>
 
@@ -92,12 +95,13 @@
     <form method="dialog">
       <button class="dialog-close" aria-label="닫기">×</button>
       <h2>RE:BUILDFRONT</h2>
-      <p>낮에는 자원을 모아 요새를 만들고, 침공 단계에는 AI 동료와 함께 HEART를 방어하세요.</p>
+      <p>자원을 모아 격자형 토대 위에 요새를 만들고, 자율 AI 동료와 함께 HEART를 방어하세요.</p>
       <ul>
-        <li>나무와 바위를 공격하면 자원이 떨어집니다.</li>
-        <li>건축 메뉴에서 벽, 터렛, 함정, 발전기를 설치할 수 있습니다.</li>
+        <li>벽·터렛·함정은 1×1 슬롯, 발전기는 2×2 슬롯을 사용합니다.</li>
+        <li>벽은 플레이어와 AI 모두 통과할 수 없습니다.</li>
         <li>터렛과 함정은 발전기 범위 안에서 더 강해집니다.</li>
-        <li>AI 동료는 빈 플레이어 슬롯을 채우며 명령에 따라 행동합니다.</li>
+        <li>AI 동료는 별도 명령 없이 역할과 상황에 맞춰 스스로 행동합니다.</li>
+        <li>Space 대시는 짧은 무적 이동이 아니라 빠른 이동 기술이며, HUD에서 쿨다운을 확인할 수 있습니다.</li>
         <li>5번째 웨이브마다 보스가 등장합니다.</li>
       </ul>
       <p class="tip">목표: 가능한 오래 버티면서 더 강한 방어선을 설계하세요.</p>
