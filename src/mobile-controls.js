@@ -2,10 +2,10 @@ const gameRoot=document.getElementById('gameRoot');
 const coarse=()=>window.matchMedia?.('(pointer: coarse)').matches||window.innerWidth<=900;
 let cleanup=null;
 const labels={
-  en:{action:'ACT',dash:'DASH',interact:'USE',inventory:'BAG',chat:'CHAT',status:'STATUS',squad:'SQUAD',close:'Close',rotate:'Landscape is recommended for easier control.'},
-  ko:{action:'행동',dash:'대시',interact:'사용',inventory:'가방',chat:'채팅',status:'상태',squad:'분대',close:'닫기',rotate:'조작하기 편하도록 가로 화면을 권장합니다.'},
-  ja:{action:'行動',dash:'ダッシュ',interact:'使用',inventory:'バッグ',chat:'チャット',status:'状態',squad:'分隊',close:'閉じる',rotate:'操作しやすい横画面を推奨します。'},
-  zh:{action:'行动',dash:'冲刺',interact:'使用',inventory:'背包',chat:'聊天',status:'状态',squad:'小队',close:'关闭',rotate:'建议横屏游玩以便操作。'}
+  en:{action:'ACT',alt:'ALT',dash:'DASH',interact:'USE',inventory:'BAG',chat:'CHAT',status:'STATUS',squad:'SQUAD',close:'Close',rotate:'Landscape is recommended for easier control.'},
+  ko:{action:'행동',alt:'보조',dash:'대시',interact:'사용',inventory:'가방',chat:'채팅',status:'상태',squad:'분대',close:'닫기',rotate:'조작하기 편하도록 가로 화면을 권장합니다.'},
+  ja:{action:'行動',alt:'副操作',dash:'ダッシュ',interact:'使用',inventory:'バッグ',chat:'チャット',status:'状態',squad:'分隊',close:'閉じる',rotate:'操作しやすい横画面を推奨します。'},
+  zh:{action:'行动',alt:'副操作',dash:'冲刺',interact:'使用',inventory:'背包',chat:'聊天',status:'状态',squad:'小队',close:'关闭',rotate:'建议横屏游玩以便操作。'}
 };
 function lang(){const l=(document.documentElement.lang||'en').toLowerCase();return l.startsWith('ko')?'ko':l.startsWith('ja')?'ja':l.startsWith('zh')?'zh':'en'}
 function t(k){return labels[lang()]?.[k]||labels.en[k]}
@@ -19,7 +19,7 @@ function init(){
   if(!shell||!arena||!canvas)return;
   shell.classList.add('mobile-mode');
   const layer=document.createElement('div');layer.className='mobile-controls';
-  layer.innerHTML=`<div class="mobile-rotate-hint">${t('rotate')}</div><div class="mobile-stick" aria-label="Move"><div class="mobile-stick-knob"></div></div><div class="mobile-actions"><button type="button" data-mobile="action" class="mobile-action primary">${t('action')}</button><button type="button" data-mobile="dash" class="mobile-action">${t('dash')}</button><button type="button" data-mobile="interact" class="mobile-action">${t('interact')}</button><button type="button" data-mobile="inventory" class="mobile-action">${t('inventory')}</button><button type="button" data-mobile="chat" class="mobile-action">${t('chat')}</button></div><div class="mobile-drawers"><button type="button" data-mobile="status" class="mobile-drawer-btn">${t('status')}</button><button type="button" data-mobile="squad" class="mobile-drawer-btn">${t('squad')}</button></div>`;
+  layer.innerHTML=`<div class="mobile-rotate-hint">${t('rotate')}</div><div class="mobile-stick" aria-label="Move"><div class="mobile-stick-knob"></div></div><div class="mobile-actions"><button type="button" data-mobile="action" class="mobile-action primary">${t('action')}</button><button type="button" data-mobile="dash" class="mobile-action">${t('dash')}</button><button type="button" data-mobile="interact" class="mobile-action">${t('interact')}</button><button type="button" data-mobile="inventory" class="mobile-action">${t('inventory')}</button><button type="button" data-mobile="alt" class="mobile-action">${t('alt')}</button><button type="button" data-mobile="chat" class="mobile-action mobile-chat-action">${t('chat')}</button></div><div class="mobile-drawers"><button type="button" data-mobile="status" class="mobile-drawer-btn">${t('status')}</button><button type="button" data-mobile="squad" class="mobile-drawer-btn">${t('squad')}</button></div>`;
   arena.appendChild(layer);
   const pressed=new Set(),syncKeys=next=>{for(const k of [...pressed])if(!next.has(k)){key('keyup',k,`Key${k.toUpperCase()}`);pressed.delete(k)}for(const k of next)if(!pressed.has(k)){key('keydown',k,`Key${k.toUpperCase()}`);pressed.add(k)}};
   const stick=layer.querySelector('.mobile-stick'),knob=layer.querySelector('.mobile-stick-knob');let stickId=null;
@@ -36,6 +36,7 @@ function init(){
   layer.querySelector('[data-mobile="dash"]').onclick=()=>{blurEditor();tapKey(' ','Space')};
   layer.querySelector('[data-mobile="interact"]').onclick=()=>{blurEditor();tapKey('e','KeyE')};
   layer.querySelector('[data-mobile="inventory"]').onclick=()=>{blurEditor();tapKey('i','KeyI')};
+  layer.querySelector('[data-mobile="alt"]').onclick=()=>{blurEditor();const p=point();mouse(canvas,'mousemove',p.x,p.y);mouse(canvas,'mousedown',p.x,p.y,2,2);mouse(canvas,'mouseup',p.x,p.y,2,0)};
   layer.querySelector('[data-mobile="chat"]').onclick=()=>{const input=gameRoot.querySelector('#chatInput');input?.focus();input?.scrollIntoView?.({block:'nearest'})};
   const panels=[...gameRoot.querySelectorAll('.game-layout>.side-panel')];for(const p of panels)if(!p.querySelector('.mobile-panel-close')){const close=document.createElement('button');close.type='button';close.className='btn mobile-panel-close';close.textContent=`× ${t('close')}`;close.onclick=()=>p.classList.remove('mobile-open');p.prepend(close)}
   const togglePanel=index=>{const target=panels[index],open=target&&!target.classList.contains('mobile-open');panels.forEach(p=>p.classList.remove('mobile-open'));if(open)target.classList.add('mobile-open')};layer.querySelector('[data-mobile="status"]').onclick=()=>togglePanel(0);layer.querySelector('[data-mobile="squad"]').onclick=()=>togglePanel(Math.max(0,panels.length-1));
