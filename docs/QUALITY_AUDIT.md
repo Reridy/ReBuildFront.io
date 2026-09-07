@@ -2,178 +2,259 @@
 
 Date: 2026-09-08
 
-This document records the full-site/game quality pass that consolidated the prototype after rapid feature growth.
+This audit records the product-wide recovery pass performed after the inventory/crafting overhaul. The goal was not to add isolated features, but to compare the current runtime against the intended game loop and remove regressions, misleading UI and prototype-only presentation.
 
 ## Audit scope
 
-Reviewed areas:
+Reviewed:
 
-- site navigation and menu hierarchy,
-- lobby and room-state behavior,
-- room cap and AI-slot handling,
-- desktop and mobile UX,
-- localization,
-- account/customization/settings flows,
-- inventory and crafting,
-- world/resource systems,
-- building placement and destruction,
-- player/AI death and revival,
-- enemy wave behavior,
-- minimap/chat/help/pause/result UI,
-- browser runtime stability,
-- server room/account/chat foundations,
-- repository structure, documentation and CI.
+- home/menu hierarchy and static-deployment behavior,
+- room browser, solo test and lobby flow,
+- host/AI/readiness/countdown state,
+- account and backend-unavailable behavior,
+- character customization and persistence,
+- desktop/mobile input consistency,
+- inventory, armor and cursor-stack interactions,
+- gathering, hauling and team-resource economy,
+- Workbench crafting and recipe discovery,
+- Hammer construction and dismantling,
+- Research Bench progression,
+- player/AI damage, down and revival,
+- autonomous AI priorities,
+- enemy movement and structure breaching,
+- wave/overtime/recovery behavior,
+- world/resource readability,
+- HUD, minimap, waypoint, chat, help and result flows,
+- README/product claims,
+- automated regression checks.
 
-## Major problems found and resolved
+## High-severity regressions found
 
-### 1. Multiple generations of runtime code
+### 1. The carry/deposit economy had disappeared from the runtime
 
-**Problem:** `app-v3.js`, `game-v5.js`, `game-v6.js`, `game-v9.js`, `data-v2.js`, `lobby-ai.js` and `lobby-ux.js` coexisted with newer code. This made it easy to fix the wrong file and allowed DOM patch layers to diverge from app state.
+The design and README still described **Gather → Carry → Deposit**, but the post-overhaul game no longer had a functioning deposit path. That meant personal raw resources and team research/storage could become disconnected.
 
-**Resolution:** one canonical `src/app.js`, one canonical `src/game.js`, one `src/data.js`. Superseded runtime and lobby-patch files were removed.
+**Resolution**
 
-### 2. Lobby behavior was patched through MutationObserver helpers
+- Restored HEART deposits.
+- Restored Supply Depot as a forward deposit point.
+- Added contextual `E` deposit and direct `F` deposit.
+- AI now carries gathered raw resources and returns them to a deposit point.
+- Crafting can use personal materials first and then team storage.
+- Research uses team storage and once again asks for multiple resource types instead of only Crystal.
 
-**Problem:** AI controls, countdown and chat were appended after rendering. Earlier versions caused recursive DOM-update bugs and inconsistent room state.
+### 2. Actors could reach zero HP without a complete down/revive loop
 
-**Resolution:** lobby AI, chat, room cap, leave confirmation and start countdown were integrated into application state/rendering.
+The runtime had lost important death-state behavior even though documentation still claimed player/AI revival.
 
-### 3. Wave timer deleted surviving enemies
+**Resolution**
 
-**Problem:** a wave could enter recovery when its timer reached zero and clear still-living enemies.
+- Player and AI enter a non-graphic down state at zero HP.
+- Revive costs team Crystal/Herb/Iron.
+- Rescue research improves revival economics.
+- The player can revive nearby AI through context interaction.
+- Autonomous support/vanguard AI can revive allies when resources allow.
+- The downed player receives a self-revive/result decision UI.
+- A squad wipe without a viable revive path ends the run cleanly.
 
-**Resolution:** surviving waves enter **Overtime**. Recovery begins after the active enemy group is actually cleared.
+### 3. Minimap, waypoint and in-game chat claims had drifted away from runtime
 
-### 4. Repeated full DOM rebuilds inside the game loop
+The quality documentation claimed an interactive minimap and chat, but recent rewrites had removed those elements from the actual game markup.
 
-**Problem:** resource and squad interfaces were regenerated unnecessarily at frame rate.
+**Resolution**
 
-**Resolution:** cached/signature-based UI refreshes now update expensive DOM sections only when their visible state changes.
+- Restored minimap canvas and expanded view.
+- Restored building/player/enemy markers.
+- Survey research exposes resource locations on the minimap.
+- Expanded-map clicks place a waypoint.
+- Restored local game chat and `/w <player> <message>` whisper UI.
+- Restored overhead player chat bubbles and system wave/recovery messages.
 
-### 5. Unsafe chat rendering
+Network chat synchronization is still dependent on the server connection and is not claimed as complete in the static Pages build.
 
-**Problem:** earlier game chat assembled user text directly into HTML strings.
+### 4. Customization existed in menus but no longer formed a complete product loop
 
-**Resolution:** chat sender, target and body are escaped/sanitized before rendering. Server chat text also remains length-limited and cleaned.
+Saving only replaced one active image; saved templates and image-upload behavior had regressed, and the active look was not reliably represented in the game.
 
-### 6. Weak failure experience
+**Resolution**
 
-**Problem:** an unexpected JavaScript exception could look like the entire website permanently froze.
+- Default avatar reset restored.
+- Drawing/stickers retained.
+- Up to 12 saved looks are stored locally.
+- Saved looks can be selected again.
+- Active customization renders on the player character.
+- Image upload UI is present only when the reward/backend path can actually support it; static Pages does not fake an unlock.
+- Invalid/oversized uploads are rejected.
 
-**Resolution:** a global error boundary displays a localized recovery overlay and reload action for fatal client errors.
+### 5. GitHub Pages was probing a nonexistent same-origin backend
 
-### 7. GUI accumulated prototype-only presentation
+The static site repeatedly tried `/health`, which can make a static deployment look like a broken online service rather than an intentionally local prototype.
 
-**Problem:** navigation, room browser, HUD and state hierarchy had grown feature-by-feature rather than as one interface.
+**Resolution**
 
-**Resolution:** added a coherent quality layer for menu hierarchy, room cards/search/filtering, clearer HUD state, panel hierarchy, overlays, accessibility states and responsive behavior.
+- GitHub Pages does not assume a same-origin API.
+- An explicit `window.REBUILDFRONT_API_BASE` or saved API base may be supplied when a real backend is deployed.
+- Static UI labels itself as a local prototype.
+- Account/cloud actions are disabled with an explanation instead of failing mysteriously.
+- Real online multiplayer is still explicitly documented as unfinished.
 
-### 8. Building feedback was insufficient
+### 6. Mobile Use and Bag were mapped to the same key
 
-**Problem:** players could understand a failed placement only after clicking.
+After Workbench/Research contextual interaction moved to `E`, both mobile `USE` and `BAG` sent `E`. Near a station, the Bag button could therefore open the station rather than inventory.
 
-**Resolution:** construction preview now communicates valid/invalid placement before committing. Entity occupancy, existing footprint and HEART clearance remain authoritative placement checks.
+**Resolution**
 
-### 9. Building health clutter
+- `USE` → `E` contextual action.
+- `BAG` → `I` dedicated inventory action.
+- The obsolete mobile `BUILD` drawer label was renamed to `STATUS`; building itself remains Hammer-driven.
 
-**Problem:** always-visible HP information would overwhelm a dense fortress.
+### 7. Structure collision could stop an enemy without producing sensible breaching
 
-**Resolution:** building HP bars/numbers are displayed only after a structure has taken damage.
+The old obstacle check could detect walls too late/incorrectly relative to movement, leaving enemies stuck against player construction.
 
-### 10. Logistics lacked a mid-game quality-of-life decision
+**Resolution**
 
-**Problem:** carrying every resource from the edge of the map back to HEART could become repetitive rather than strategically interesting.
+- Movement probes the next position against structure rectangles.
+- Player and AI use local side-step avoidance instead of phasing through structures.
+- Enemies attack the blocking structure when their intended step is blocked.
+- Brute/Boss types apply stronger breach pressure.
 
-**Resolution:** Logistics research unlocks a forward Supply Depot so teams can invest resources to shorten hauling routes.
+This is still lightweight local steering, not full grid A* pathfinding.
 
-### 11. Repair progression was too passive
+## Interaction and usability improvements
 
-**Problem:** automatic global repair is strategically shallow.
+### Inventory
 
-**Resolution:** Field Repair is represented through a powered Repair Relay with a local repair radius, making generator and relay placement matter.
+- 36 slots + 9-slot hotbar retained.
+- Left click picks/places a full stack.
+- Right click splits a stack or places one item.
+- Shift-click quick-moves between hotbar and inventory.
+- Double-click collects matching stacks up to the stack limit.
+- Armor can now actually be equipped/swapped.
+- Closing an inventory/station UI returns a held cursor stack to inventory first. Intentional outside-click dropping remains available.
 
-### 12. Minimap interaction was mostly passive
+### Crafting
 
-**Problem:** enlarged map view showed information but did little for coordination.
+- Workbench recipe-book search retained.
+- Added category filters: materials, tools, combat, buildings, stations and armor.
+- Recipes show current amount vs required amount per ingredient.
+- Missing ingredients are visually highlighted.
+- Shift-click crafts as many repetitions as current resources/inventory capacity allow.
 
-**Resolution:** minimap interaction now supports a waypoint/navigation marker and surveying upgrades can improve resource awareness.
+### Building
 
-### 13. Pause/result/onboarding were underdeveloped
+- Hammer remains the only construction interface.
+- Structure items must exist in inventory before appearing in the build dock.
+- Multi-cell footprints are centered more naturally under the cursor.
+- Grid and valid/invalid ghost appear only during building.
+- Hammer right-click dismantles and returns the structure item when possible.
+- Nearby resource nodes are cleared and respawn elsewhere; future resource respawns avoid structures.
 
-**Problem:** the prototype lacked a strong interruption/recovery loop and could drop users into systems without context.
+### Research
 
-**Resolution:** pause state, automatic pause on tab/background transition, result/restart/lobby actions, contextual help and first-session field guidance were added.
+- Research Bench remains required.
+- Research nodes are grouped into Defense, Support, Logistics and Exploration branches.
+- Costs use multiple resource families so exploration matters.
+- Cost cards show banked/required amounts and highlight shortages.
 
-### 14. Localization drift
+## Autonomous AI improvements
 
-**Problem:** data identifiers changed while old localization keys remained. Korean also used `준비 취소` for the not-ready state even though the intended label was `준비중`.
+AI remains fully autonomous; manual RTS orders were not reintroduced.
 
-**Resolution:** localization was rebuilt around the canonical data model. English, Korean, Japanese and Chinese now include current resources, zones, buildings, items, research and new quality-pass UI. Korean not-ready state is explicitly tested as `준비중`.
+Current prototype AI can:
 
-### 15. Room/AI cap inconsistencies
+- fight nearby threats,
+- gather resources,
+- pick up drops,
+- return carried raw resources to HEART/Supply Depot,
+- spend available team Wood/Stone to repair damaged structures,
+- revive downed allies when resources allow,
+- return to HEART when no higher-priority task exists.
 
-**Problem:** client, local room state and server could diverge on human/AI capacity.
+Internal role biases (vanguard/gatherer/builder/support) alter priorities, but they are not fixed player classes.
 
-**Resolution:** shared client cap is 15 and server cap is 15. AI slots count toward total room capacity. The AI roster contains enough profiles for a one-human + fourteen-AI test room.
+**Not yet implemented:** AI does not autonomously design/place new fortifications. That remains a future system rather than a claimed feature.
 
-### 16. Server account/reward hardening
+## Presentation improvements
 
-**Problem:** early account endpoints lacked basic request throttling/session expiry, and development ad rewards could be mistaken for production validation.
+The previous runtime was readable as a debug prototype but too many world objects were undifferentiated circles or raw internal identifiers.
 
-**Resolution:** basic authentication rate limiting, session expiry and production-safe reward behavior were added. Password storage remains salted `scrypt`.
+This pass adds:
 
-## Quality automation added
+- different silhouettes for organic vs mineral resource nodes,
+- resource icons and nearby labels,
+- building icons and localized building names,
+- damaged-only building HP bars,
+- enemy icons and contextual HP bars,
+- player HP HUD,
+- AI activity text in the Squad panel,
+- HEART visual emphasis,
+- build-only grid visualization,
+- waypoint marker,
+- recipe/research shortage states,
+- richer home feature cards and room metadata,
+- saved-look gallery for Customize.
 
-`node scripts/smoke.mjs` verifies:
+## Lobby/site improvements
 
-- canonical runtime files exist,
-- superseded runtime files stay deleted,
-- `index.html` references valid files,
-- manifest validity,
-- supported languages,
-- literal and dynamic localization coverage,
-- Korean `준비중` status,
-- 15-player room cap consistency,
-- minimum map/AI/building/research data,
-- overtime/pause/waypoint product invariants,
-- server AI-room support.
+- Added a clear Solo Test flow (one human + three AI).
+- Restored same-language room filtering.
+- Restored room-code copy.
+- Restored editable room description.
+- AI add/remove obeys total capacity.
+- Changing room/AI state cancels an in-progress start countdown.
+- Static demo rooms are identified as demo/local rather than real synchronized sessions.
+- Home page now describes the actual Explore/Craft/Build/Research loop instead of behaving as a generic launcher.
 
-GitHub Actions runs syntax checks, this smoke test and server dependency installation on pull requests.
+## Quality automation strengthened
 
-## Current product strengths after the pass
+`node scripts/smoke.mjs` now checks that future PRs preserve key runtime invariants, including:
 
-- Much lower risk of editing the wrong runtime file.
-- Clearer menu/lobby hierarchy.
-- Classless cooperation fits the intended sandbox direction better than fixed AI roles.
-- Six-zone resource map creates exploration pressure.
-- Carry/deposit logistics gives travel strategic value.
-- Research affects fortress structure and logistics instead of only raw stats.
-- Building damage and overtime make defenses more consequential.
-- Mobile controls are treated as a real input layer.
-- Error recovery, pause, onboarding and result states make the prototype feel less like a debug build.
+- canonical files and valid page references,
+- four supported languages,
+- 15-slot room cap and sufficient AI roster,
+- all 15 sword/pickaxe/axe tier recipes,
+- Hammer and structure-item construction data,
+- building-safe resource respawn clearance,
+- multi-resource research,
+- shared in-app modal and no browser `alert()`/`confirm()`,
+- static Pages backend detection behavior,
+- room language filter/code copy,
+- customization templates/upload state,
+- inventory cursor/quick-move/double-click/return behavior,
+- Workbench search/categories,
+- Research Bench/branch UI,
+- HEART/Supply Depot deposit functions,
+- down/revive functions,
+- enemy structure collision/breaching functions,
+- minimap/chat/customization rendering,
+- desktop `I` inventory and `F` deposit shortcuts,
+- separate mobile `E` Use and `I` Bag mappings,
+- server 15-slot and AI-room foundations.
 
-## Deliberate production limitations
+## Deliberate limitations after this pass
 
-These are not presented as completed features:
+These remain real limitations and should not be hidden behind UI claims:
 
-1. **True online client synchronization:** GitHub Pages remains a static client. The Node/Socket.IO backend must be deployed and the browser game must be wired to it before claiming real 15-human online matches.
-2. **Persistence infrastructure:** the server prototype uses a local JSON user store. A public service needs a real database, secure deployment, backups and operational controls.
-3. **Full navigation/pathfinding:** local avoidance and structure breaching are enough for the prototype, but dense user-built mazes will eventually require stronger grid pathfinding/breach planning.
-4. **Content scale:** only the `test` map is currently shipped. Additional maps, events and enemy families are content expansion rather than hidden unfinished UI.
-5. **Production OAuth/ad providers:** Google/Discord and rewarded-ad validation require real provider credentials and deployment configuration.
-
-These limitations are documented explicitly so the site does not claim capabilities it does not yet have.
+1. **True online synchronization is not complete.** The Pages build is static. The Node/Socket.IO service must be deployed and connected, and gameplay state must become server-authoritative before real internet matches are claimed.
+2. **AI building design is not complete.** AI gathers, deposits, fights, repairs and revives, but does not yet decide where to construct fortifications.
+3. **Pathfinding is local steering/breaching, not full A*.** Dense player mazes can still expose navigation weaknesses.
+4. **Only the `test` map is shipped.** Six resource regions exist inside it, but there is not yet a real multi-map content library.
+5. **Persistent production accounts are not deployed.** The server foundation uses prototype storage and needs production database/ops work.
+6. **OAuth and rewarded-ad providers require real credentials/services.** Static Pages deliberately does not pretend these are available.
+7. **Audio is not yet a finished feedback layer.** Combat/gather/build clarity is currently visual.
+8. **Touch inventory interactions are functional through browser pointer behavior, but a dedicated touch-native split/drag UX can still be improved later.**
 
 ## Canonical rule going forward
 
-Do not solve a new feature by attaching another DOM watcher or versioned runtime file. Extend the canonical modules:
+Do not solve future features with versioned runtime copies or DOM-patching observers. Extend the canonical modules:
 
-- `app.js` — site/menu/room/account UI state
-- `game.js` — playable simulation and in-game UI
-- `data.js` — item/crafting/map/room constants
-- `config.js` — world/enemy/building/research tuning
-- `i18n.js` — all supported-language presentation text
-- `mobile-controls.js` — mobile input adaptation
-- `server.js` — network/account authoritative foundation
+- `src/app.js` — site/menu/room/account/customization/settings state
+- `src/game.js` — playable simulation and in-game UI
+- `src/data.js` — item/recipe/map/room constants
+- `src/config.js` — world/enemy/building/research tuning
+- `src/i18n.js` — shared presentation strings
+- `src/mobile-controls.js` — touch input adaptation
+- `server/server.js` — network/account foundation
 
-Every substantial PR should pass the quality workflow before merging.
+Every substantial change must pass the quality workflow before merge, and documentation must describe the runtime that actually exists rather than the intended future version.
