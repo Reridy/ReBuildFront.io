@@ -4,7 +4,7 @@ const L={
  en:{chat:'Lobby chat',send:'Send',leave:'Leave room',leaveWarn:'You will leave the room. Continue?',waiting:'Waiting',maxPlayers:'Maximum players is 15.',starting:'Game starts in'},
  ko:{chat:'방 채팅',send:'보내기',leave:'방 나가기',leaveWarn:'방에서 나가게 됩니다. 계속하시겠습니까?',waiting:'준비중',maxPlayers:'최대 인원은 15명입니다.',starting:'게임 시작까지'},
  ja:{chat:'ロビーチャット',send:'送信',leave:'ルーム退出',leaveWarn:'ルームから退出します。続けますか？',waiting:'準備中',maxPlayers:'最大人数は15人です。',starting:'ゲーム開始まで'},
- zh:{chat:'房间聊天',send:'发送',leave:'离开房间',leaveWarn:'你将 leave the room. Continue?',waiting:'准备中',maxPlayers:'最大人数为15人。',starting:'距离游戏开始'}
+ zh:{chat:'房间聊天',send:'发送',leave:'离开房间',leaveWarn:'你将离开房间。是否继续？',waiting:'准备中',maxPlayers:'最大人数为15人。',starting:'距离游戏开始'}
 };
 const lang=()=>{const l=(document.documentElement.lang||'en').toLowerCase();return l.startsWith('ko')?'ko':l.startsWith('ja')?'ja':l.startsWith('zh')?'zh':'en'};
 const t=k=>L[lang()]?.[k]||L.en[k];
