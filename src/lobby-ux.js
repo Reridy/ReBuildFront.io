@@ -1,4 +1,5 @@
 const root=document.getElementById('appRoot');
+const gameRoot=document.getElementById('gameRoot');
 const L={
  en:{chat:'Lobby chat',send:'Send',leave:'Leave room',leaveWarn:'You will leave the room. Continue?',waiting:'Waiting',maxPlayers:'Maximum players is 15.',starting:'Game starts in'},
  ko:{chat:'방 채팅',send:'보내기',leave:'방 나가기',leaveWarn:'방에서 나가게 됩니다. 계속하시겠습니까?',waiting:'준비중',maxPlayers:'최대 인원은 15명입니다.',starting:'게임 시작까지'},
@@ -15,27 +16,49 @@ function showCapMessage(input){if(!input)return;let msg=input.parentElement?.que
 function clampRoomInput(input,notify=true){if(!input)return 15;let n=capacityValue(input);if(n>15){n=15;input.value='15';if(notify)showCapMessage(input)}else if(n<1){n=1;input.value='1'}input.max='15';input.min='1';return n}
 function captureRoomCapacity(){
  const input=root?.querySelector('#roomMax');
- if(input&&!input.dataset.rbfCapInput){input.dataset.rbfCapInput='1';input.addEventListener('input',()=>{const before=capacityValue(input);const cap=clampRoomInput(input,true);sessionStorage.setItem('rbf.roomMax',String(cap));if(before<=15)sessionStorage.setItem('rbf.roomMax',String(cap))});input.addEventListener('blur',()=>clampRoomInput(input,false))}
+ if(input&&!input.dataset.rbfCapInput){input.dataset.rbfCapInput='1';input.addEventListener('input',()=>{const cap=clampRoomInput(input,true);sessionStorage.setItem('rbf.roomMax',String(cap))});input.addEventListener('blur',()=>clampRoomInput(input,false))}
  const create=root?.querySelector('#createRoom');
  if(create&&!create.dataset.capHook){create.dataset.capHook='1';create.addEventListener('click',()=>{const cap=clampRoomInput(root.querySelector('#roomMax'),true);sessionStorage.setItem('rbf.roomMax',String(cap));window.dispatchEvent(new Event('rbf-room-cap'))},{capture:true})}
  root?.querySelectorAll('[data-join]').forEach(btn=>{if(btn.dataset.capHook)return;btn.dataset.capHook='1';btn.addEventListener('click',()=>{const card=btn.closest('.room-card');const m=card?.innerText.match(/(\d+)\s*\/\s*(\d+)/);const cap=Math.max(1,Math.min(15,Number(m?.[2])||15));sessionStorage.setItem('rbf.roomMax',String(cap));window.dispatchEvent(new Event('rbf-room-cap'))},{capture:true})});
 }
 function fixWaitingLabel(){if(lang()!=='ko')return;root?.querySelectorAll('.lobby-grid .player-row span:not(.ready)').forEach(s=>{if(s.textContent.trim()==='준비 취소')s.textContent='준비중'})}
-function roomLeave(){if(countdownTimer)clearInterval(countdownTimer);countdownActive=false;window.dispatchEvent(new Event('rbf-leave-room'))}
+function roomLeave(){if(countdownTimer)clearInterval(countdownTimer);countdownTimer=null;countdownActive=false;window.dispatchEvent(new Event('rbf-leave-room'))}
 function addLobbyControls(){
  const lobby=root?.querySelector('.lobby-grid');if(!lobby)return;
  const content=lobby.parentElement;if(!content)return;
  if(!content.querySelector('#rbfLobbyChat')){
    const box=document.createElement('section');box.id='rbfLobbyChat';box.className='panel';box.style.marginTop='12px';box.innerHTML=`<h3>${t('chat')}</h3><div id="rbfLobbyChatLog" class="chat-log" style="max-height:150px;min-height:80px"></div><div class="row"><input id="rbfLobbyChatInput" maxlength="180" placeholder="${t('chat')}"><button id="rbfLobbyChatSend" class="btn">${t('send')}</button></div>`;content.appendChild(box);
-   const send=()=>{const input=box.querySelector('#rbfLobbyChatInput');const text=input.value.trim();if(!text)return;const name=(root.querySelector('.auth-actions span')?.textContent||sessionStorage.getItem('rbf.guest')||'User').trim();messages.push({name,text});input.value='';renderChat()};
-   box.querySelector('#rbfLobbyChatSend').onclick=send;box.querySelector('#rbfLobbyChatInput').addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+   const send=()=>{const input=box.querySelector('#rbfLobbyChatInput');const text=input.value.trim();if(!text)return;const name=(root.querySelector('.auth-actions span')?.textContent||sessionStorage.getItem('rbf.guest')||'User').trim();messages.push({name,text});if(messages.length>50)messages.splice(0,messages.length-50);input.value='';renderChat()};
+   box.querySelector('#rbfLobbyChatSend').onclick=send;box.querySelector('#rbfLobbyChatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send()}});renderChat();
  }
  if(!content.querySelector('#rbfLeaveRoom')){const b=document.createElement('button');b.id='rbfLeaveRoom';b.className='btn danger';b.style.marginTop='12px';b.textContent=t('leave');b.onclick=()=>{if(confirm(t('leaveWarn')))roomLeave()};content.appendChild(b)}
  if(!content.querySelector('#rbfCountdown')){const d=document.createElement('div');d.id='rbfCountdown';d.className='banner hidden';content.appendChild(d)}
- renderChat();
 }
-function renderChat(){const log=root?.querySelector('#rbfLobbyChatLog');if(log){log.innerHTML=messages.slice(-50).map(m=>`<div><b>${esc(m.name)}</b>: ${esc(m.text)}</div>`).join('');log.scrollTop=log.scrollHeight}}
-function hookStartCountdown(){const start=root?.querySelector('#startGame');if(!start||start.dataset.countdownHook)return;start.dataset.countdownHook='1';start.addEventListener('click',e=>{if(start.dataset.countdownBypass==='1'){delete start.dataset.countdownBypass;return}if(start.disabled||countdownActive)return;e.preventDefault();e.stopImmediatePropagation();countdownActive=true;start.disabled=true;let left=5;const box=root.querySelector('#rbfCountdown');const paint=()=>{if(box){box.textContent=`${t('starting')} ${left}`;box.classList.remove('hidden')}start.textContent=`${left}`};paint();countdownTimer=setInterval(()=>{left--;if(left>0){paint();return}clearInterval(countdownTimer);countdownTimer=null;countdownActive=false;if(box)box.classList.add('hidden');start.dataset.countdownBypass='1';start.disabled=false;start.click()},1000)},{capture:true})}
+function renderChat(){const log=root?.querySelector('#rbfLobbyChatLog');if(!log)return;const html=messages.map(m=>`<div><b>${esc(m.name)}</b>: ${esc(m.text)}</div>`).join('');if(log.innerHTML!==html)log.innerHTML=html;log.scrollTop=log.scrollHeight}
+function hookStartCountdown(){
+ const start=root?.querySelector('#startGame');if(!start||start.dataset.countdownHook)return;
+ start.dataset.countdownHook='1';
+ const originalLabel=start.textContent;
+ const handler=e=>{
+   if(start.disabled||countdownActive)return;
+   e.preventDefault();e.stopImmediatePropagation();countdownActive=true;start.disabled=true;
+   let left=5;const box=root.querySelector('#rbfCountdown');
+   const paint=()=>{if(box){box.textContent=`${t('starting')} ${left}`;box.classList.remove('hidden')}start.textContent=String(left)};
+   paint();
+   countdownTimer=setInterval(()=>{
+     left--;
+     if(left>0){paint();return}
+     clearInterval(countdownTimer);countdownTimer=null;countdownActive=false;
+     if(box)box.classList.add('hidden');
+     start.textContent=originalLabel;start.disabled=false;
+     start.removeEventListener('click',handler,true);delete start.dataset.countdownHook;
+     start.click();
+     setTimeout(()=>{if(start.isConnected&&gameRoot?.classList.contains('hidden'))hookStartCountdown()},0);
+   },1000)
+ };
+ start.addEventListener('click',handler,true)
+}
 function apply(){captureRoomCapacity();fixWaitingLabel();addLobbyControls();hookStartCountdown()}
 function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;apply()})}
-const obs=new MutationObserver(schedule);if(root)obs.observe(root,{childList:true,subtree:true});window.addEventListener('rbf-language',schedule);apply();
+const obs=new MutationObserver(schedule);if(root)obs.observe(root,{childList:true});
+window.addEventListener('rbf-language',schedule);apply();
