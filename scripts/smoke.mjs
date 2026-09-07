@@ -47,7 +47,7 @@ assert(app.includes('lobbyChat'),'app should contain integrated lobby chat');
 assert(game.includes("'overtime'")||game.includes('"overtime"'),'game should support overtime instead of deleting living enemies');
 assert(game.includes('paused'),'game should expose pause state');
 assert(game.includes('waypoint'),'game should expose minimap waypoint state');
-assert(server.includes('const MAX_PLAYERS=15'),'server room cap must be 15');
+assert(/\bMAX_PLAYERS\s*=\s*15\b/.test(server),'server room cap must be 15');
 assert(server.includes("socket.on('add-ai'")&&server.includes("socket.on('remove-ai'"),'server must support lobby AI slots');
 
 const literalKeys=new Set();
