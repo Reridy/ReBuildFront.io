@@ -50,7 +50,14 @@ export const ENEMIES={
  spitter:{hp:95,speed:58,damage:12,radius:13,reward:4,color:'#9f6bb0'},
  boss:{hp:1500,speed:36,damage:48,radius:35,reward:35,color:'#d4466a'}
 };
-export const AI_PLAYERS=[{name:'MIKA',accent:'#86d3ff'},{name:'RON',accent:'#ff9f7c'},{name:'EVE',accent:'#9ee59e'}];
+const BASE_AI_PLAYERS=[
+ {name:'MIKA',accent:'#86d3ff'},{name:'RON',accent:'#ff9f7c'},{name:'EVE',accent:'#9ee59e'},{name:'NOVA',accent:'#d7a6ff'},
+ {name:'ALTO',accent:'#ffd784'},{name:'KITE',accent:'#8be3d4'},{name:'LYRA',accent:'#f2a9d8'},{name:'PICO',accent:'#a9c5ff'},
+ {name:'ARIA',accent:'#f7c59f'},{name:'NOX',accent:'#b4b0ff'},{name:'MILO',accent:'#9ed89e'},{name:'LUMA',accent:'#ffe58a'},
+ {name:'ORBIT',accent:'#8fd8ff'},{name:'TESS',accent:'#e6b0ff'}
+];
+function selectedAiCount(){try{return Math.max(0,Math.min(BASE_AI_PLAYERS.length,Number(sessionStorage.getItem('rbf.aiCount'))||0))}catch{return 0}}
+export const AI_PLAYERS=new Proxy(BASE_AI_PLAYERS,{get(target,prop,receiver){if(prop==='slice')return(start=0)=>target.slice(start,start+selectedAiCount());return Reflect.get(target,prop,receiver)}});
 export const RESEARCH={
  ranged:{label:'원거리 무기',cost:12,branch:'무기',description:'플레이어와 AI가 검 외에 카빈을 사용할 수 있게 합니다. Q로 검/카빈 전환.'},
  turret:{label:'자동 터렛',cost:18,requires:['ranged'],branch:'무기',description:'자동 터렛 건설을 해금합니다.'},
