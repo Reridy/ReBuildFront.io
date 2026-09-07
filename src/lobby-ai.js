@@ -8,6 +8,7 @@ const LABELS={
 const root=document.getElementById('appRoot');
 const lang=()=>{const l=(document.documentElement.lang||'en').toLowerCase();return l.startsWith('ko')?'ko':l.startsWith('ja')?'ja':l.startsWith('zh')?'zh':'en'};
 const text=k=>LABELS[lang()]?.[k]||LABELS.en[k];
+const roomCap=()=>Math.max(1,Math.min(15,Number(sessionStorage.getItem('rbf.roomMax'))||15));
 const getCount=()=>Math.max(0,Math.min(14,Number(sessionStorage.getItem('rbf.aiCount'))||0));
 const setCount=n=>{sessionStorage.setItem('rbf.aiCount',String(Math.max(0,Math.min(14,n))));window.dispatchEvent(new CustomEvent('rbf-ai-count',{detail:getCount()}));scheduleApply(true)};
 let scheduled=false,forceNext=false;
@@ -27,10 +28,11 @@ function applyLobbyAI(force=false){
   const aside=lobby.querySelector('aside.panel');
   if(!aside)return;
   const existingRows=[...aside.querySelectorAll('.player-row:not([data-rbf-ai-row])')];
-  const maxAI=Math.max(0,15-existingRows.length);
+  const capacity=roomCap();
+  const maxAI=Math.max(0,capacity-existingRows.length);
   const count=Math.min(getCount(),maxAI);
   if(count!==getCount())sessionStorage.setItem('rbf.aiCount',String(count));
-  const signature=`${lang()}:${existingRows.length}:${count}:${maxAI}`;
+  const signature=`${lang()}:${existingRows.length}:${count}:${maxAI}:${capacity}`;
   const controls=aside.querySelector('#rbfAiControls');
   const aiRows=aside.querySelectorAll('[data-rbf-ai-row]');
   if(!force&&controls?.dataset.signature===signature&&aiRows.length===count)return;
@@ -49,7 +51,7 @@ function applyLobbyAI(force=false){
   next.dataset.signature=signature;
   next.className='row';
   next.style.marginTop='10px';
-  next.innerHTML=`<button id="rbfAddAI" class="btn" ${count>=maxAI?'disabled':''}>+ ${text('add')}</button><button id="rbfRemoveAI" class="btn" ${count<=0?'disabled':''}>− ${text('remove')}</button><small class="muted">${text('ai')}: ${count} / ${maxAI}</small>`;
+  next.innerHTML=`<button id="rbfAddAI" class="btn" ${count>=maxAI?'disabled':''}>+ ${text('add')}</button><button id="rbfRemoveAI" class="btn" ${count<=0?'disabled':''}>− ${text('remove')}</button><small class="muted">${text('ai')}: ${count} / ${maxAI} · ${existingRows.length+count}/${capacity}</small>`;
   if(anchor)aside.insertBefore(next,anchor);else aside.appendChild(next);
   next.querySelector('#rbfAddAI').onclick=()=>setCount(count+1);
   next.querySelector('#rbfRemoveAI').onclick=()=>setCount(count-1);
@@ -60,4 +62,5 @@ function scheduleApply(force=false){forceNext=forceNext||force;if(scheduled)retu
 const observer=new MutationObserver(()=>scheduleApply(false));
 if(root)observer.observe(root,{childList:true,subtree:true});
 window.addEventListener('rbf-language',()=>scheduleApply(true));
+window.addEventListener('rbf-room-cap',()=>scheduleApply(true));
 apply();
