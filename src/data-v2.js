@@ -1,13 +1,13 @@
 export const MAPS=[{id:'test',name:'test',maxPlayers:15,description:'The first RE:BUILDFRONT test map.'}];
 export const DIFFICULTIES=['easy','normal','hard'];
 export const ITEM_DEFS={
- sword:{name:'Field Blade',kind:'tool',stack:1,icon:'⚔',desc:'Short-range starter tool for defending yourself.'},
+ sword:{name:'Field Blade',kind:'tool',stack:1,icon:'⚔',desc:'Starter field tool.'},
  pickaxe:{name:'Survey Pick',kind:'tool',stack:1,icon:'⛏',desc:'Efficiently extracts ore and stone deposits.'},
  builderKit:{name:'Builder Kit',kind:'tool',stack:1,icon:'▦',desc:'Opens the construction blueprint selector.'},
  armorJacket:{name:'Reinforced Shell',kind:'armor',stack:1,icon:'◈',defense:.15,desc:'Single-slot armor that reduces incoming damage.'},
  wood:{name:'Wood',kind:'resource',stack:99,icon:'▥'},stone:{name:'Stone',kind:'resource',stack:99,icon:'⬟'},fiber:{name:'Fiber',kind:'resource',stack:99,icon:'≋'},iron:{name:'Iron',kind:'resource',stack:99,icon:'◆'},crystal:{name:'Crystal',kind:'resource',stack:99,icon:'✦'},quartz:{name:'Quartz',kind:'resource',stack:99,icon:'◇'},herb:{name:'Herb',kind:'resource',stack:99,icon:'♧'},resin:{name:'Resin',kind:'resource',stack:99,icon:'●'},scrap:{name:'Scrap',kind:'resource',stack:99,icon:'⌁'},copper:{name:'Copper',kind:'resource',stack:99,icon:'⬢'},
  plank:{name:'Board',kind:'material',stack:99,icon:'▤'},cord:{name:'Cord',kind:'material',stack:99,icon:'〰'},metalPlate:{name:'Metal Plate',kind:'material',stack:99,icon:'▣'},circuit:{name:'Circuit',kind:'material',stack:99,icon:'⌘'},
- workbench:{name:'Workbench',kind:'placeable',stack:16,icon:'▧'},grandWorkbench:{name:'Grand Workbench',kind:'placeable',stack:8,icon:'▨'},wallPack:{name:'Wall Blueprint Pack',kind:'build',stack:32,icon:'▥'},trapPack:{name:'Trap Blueprint Pack',kind:'build',stack:16,icon:'⌗'},turretPack:{name:'Turret Blueprint Pack',kind:'build',stack:8,icon:'◎'},generatorPack:{name:'Generator Blueprint Pack',kind:'build',stack:8,icon:'◉'}
+ workbench:{name:'Workbench',kind:'placeable',stack:16,icon:'▧',gridW:2,gridH:2,hp:180,color:'#8a6c4d'},grandWorkbench:{name:'Grand Workbench',kind:'placeable',stack:8,icon:'▨',gridW:3,gridH:3,hp:320,color:'#756a82'},wallPack:{name:'Wall Blueprint Pack',kind:'build',stack:32,icon:'▥'},trapPack:{name:'Trap Blueprint Pack',kind:'build',stack:16,icon:'⌗'},turretPack:{name:'Turret Blueprint Pack',kind:'build',stack:8,icon:'◎'},generatorPack:{name:'Generator Blueprint Pack',kind:'build',stack:8,icon:'◉'}
 };
 export const RECIPES=[
  {id:'board',size:2,pattern:[['wood',null],[null,null]],out:{id:'plank',count:2}},
