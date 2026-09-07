@@ -25,7 +25,7 @@
   .arena-wrap canvas{touch-action:none}
   .side-panel{display:none}
   .side-panel.mobile-open{display:block;position:fixed;left:8px;right:8px;top:max(8px,env(safe-area-inset-top));bottom:max(8px,env(safe-area-inset-bottom));z-index:80;overflow:auto;background:rgba(12,20,29,.985);box-shadow:0 10px 40px rgba(0,0,0,.45)}
-  .side-panel.mobile-open:before{content:'×';position:sticky;float:right;top:0;display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#253547;color:var(--text);font-size:24px;z-index:2}
+  .mobile-panel-close{position:sticky;top:0;z-index:3;float:right;margin:0 0 8px 8px;background:#253547}
   .mobile-controls{display:block;position:absolute;inset:0;z-index:18;pointer-events:none}
   .mobile-stick{position:absolute;left:12px;bottom:66px;width:92px;height:92px;border:1px solid rgba(180,210,235,.45);border-radius:50%;background:rgba(12,20,29,.48);pointer-events:auto;touch-action:none}
   .mobile-stick:before{content:'';position:absolute;inset:30%;border:1px solid rgba(180,210,235,.24);border-radius:50%}
