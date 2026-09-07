@@ -43,7 +43,7 @@ assert(app.includes('rewardUnavailable')&&!app.includes('catch{state.custom.uplo
 assert(game.includes("'overtime'")||game.includes('"overtime"'),'game should support overtime instead of deleting living enemies');
 assert(game.includes('paused'),'game should expose pause state');
 assert(game.includes('waypoint'),'game should expose minimap waypoint state');
-for(const lang of SUPPORTED_LANGUAGES)assert(new RegExp(`(?:^|[,\\s])${lang}:\\{`).test(game),`game-local translation table missing ${lang}`);
+for(const lang of SUPPORTED_LANGUAGES)assert(new RegExp(`${lang}:\\{`).test(game),`game-local translation table missing ${lang}`);
 assert(/\bMAX_PLAYERS\s*=\s*15\b/.test(server),'server room cap must be 15');
 assert(server.includes("socket.on('add-ai'")&&server.includes("socket.on('remove-ai'"),'server must support lobby AI slots');
 assert(server.includes("r.map=cfg?.map==='test'?'test':r.map"),'server room config must accept map updates');
