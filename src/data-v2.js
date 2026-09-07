@@ -1,7 +1,7 @@
 export const MAPS=[{id:'test',name:'test',maxPlayers:15,description:'The first RE:BUILDFRONT test map.'}];
 export const DIFFICULTIES=['easy','normal','hard'];
 export const ITEM_DEFS={
- sword:{name:'Field Blade',kind:'tool',stack:1,icon:'⚔',desc:'Starter field tool.'},
+ fieldTool:{name:'Field Tool',kind:'tool',stack:1,icon:'◌',desc:'Starter interaction tool for field work and defense.'},
  pickaxe:{name:'Survey Pick',kind:'tool',stack:1,icon:'⛏',desc:'Efficiently extracts ore and stone deposits.'},
  builderKit:{name:'Builder Kit',kind:'tool',stack:1,icon:'▦',desc:'Opens the construction blueprint selector.'},
  armorJacket:{name:'Reinforced Shell',kind:'armor',stack:1,icon:'◈',defense:.15,desc:'Single-slot armor that reduces incoming damage.'},
@@ -22,7 +22,7 @@ export const RECIPES=[
  {id:'generatorPack',size:4,pattern:[['copper','circuit','copper',null],['metalPlate','crystal','metalPlate',null],['copper','quartz','copper',null],[null,null,null,null]],out:{id:'generatorPack',count:1}}
 ];
 export function makeInventory(size=36){return Array.from({length:size},()=>null)}
-export function starterInventory(){const inv=makeInventory();inv[0]={id:'sword',count:1};inv[1]={id:'pickaxe',count:1};inv[2]={id:'builderKit',count:1};return inv}
+export function starterInventory(){const inv=makeInventory();inv[0]={id:'fieldTool',count:1};inv[1]={id:'pickaxe',count:1};inv[2]={id:'builderKit',count:1};return inv}
 export function addItem(inv,id,count=1){const def=ITEM_DEFS[id];if(!def)return count;let left=count;for(const slot of inv){if(slot?.id===id&&slot.count<def.stack){const room=def.stack-slot.count,put=Math.min(room,left);slot.count+=put;left-=put;if(!left)return 0}}for(let i=0;i<inv.length&&left;i++){if(!inv[i]){const put=Math.min(def.stack,left);inv[i]={id,count:put};left-=put}}return left}
 export function removeItem(inv,id,count=1){let left=count;for(let i=inv.length-1;i>=0&&left;i--){const s=inv[i];if(s?.id!==id)continue;const take=Math.min(s.count,left);s.count-=take;left-=take;if(s.count<=0)inv[i]=null}return left===0}
 export const ROOM_SEED=[
