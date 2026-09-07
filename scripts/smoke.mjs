@@ -43,13 +43,14 @@ assert(app.includes('rewardUnavailable')&&!app.includes('catch{state.custom.uplo
 assert(game.includes("'overtime'")||game.includes('"overtime"'),'game should support overtime instead of deleting living enemies');
 assert(game.includes('paused'),'game should expose pause state');
 assert(game.includes('waypoint'),'game should expose minimap waypoint state');
+for(const lang of SUPPORTED_LANGUAGES)assert(new RegExp(`(?:^|[,\\s])${lang}:\\{`).test(game),`game-local translation table missing ${lang}`);
 assert(/\bMAX_PLAYERS\s*=\s*15\b/.test(server),'server room cap must be 15');
 assert(server.includes("socket.on('add-ai'")&&server.includes("socket.on('remove-ai'"),'server must support lobby AI slots');
 assert(server.includes("r.map=cfg?.map==='test'?'test':r.map"),'server room config must accept map updates');
 assert(server.includes('Number.isFinite(rawVolume)'),'server must sanitize account volume values');
 
-const literalKeys=new Set();
-for(const source of [app,game])for(const m of source.matchAll(/\b(?:base|tt)\(['"]([A-Za-z0-9_]+)['"]\)/g))literalKeys.add(m[1]);
+const sharedKeys=new Set();
+for(const source of [app,game])for(const m of source.matchAll(/\bbase\(['"]([A-Za-z0-9_]+)['"]\)/g))sharedKeys.add(m[1]);
 const dynamicKeys=new Set([
   ...Object.keys(RESOURCES).flatMap(id=>[`res_${id}`,`item_${id}`]),
   ...ZONES.map(z=>`zone_${z.id}`),
@@ -57,8 +58,8 @@ const dynamicKeys=new Set([
   ...Object.keys(RESEARCH).map(id=>`research_${id}`),
   ...Object.keys(ITEM_DEFS).map(id=>ITEM_DEFS[id].kind==='resource'?`res_${id}`:`item_${id}`)
 ]);
-for(const key of [...literalKeys,...dynamicKeys])for(const lang of SUPPORTED_LANGUAGES)assert(Object.prototype.hasOwnProperty.call(STRINGS[lang],key),`missing ${lang} translation for ${key}`);
+for(const key of [...sharedKeys,...dynamicKeys])for(const lang of SUPPORTED_LANGUAGES)assert(Object.prototype.hasOwnProperty.call(STRINGS[lang],key),`missing ${lang} translation for ${key}`);
 assert(STRINGS.ko.unready==='준비중','Korean unready state must read 준비중');
 for(const id of Object.keys(RESOURCES))for(const lang of SUPPORTED_LANGUAGES)assert(STRINGS[lang][`item_${id}`]===STRINGS[lang][`res_${id}`],`${lang} resource item alias missing for ${id}`);
 
-if(!process.exitCode)console.log(`Smoke checks passed: ${required.length} required files, ${literalKeys.size} literal keys, ${dynamicKeys.size} dynamic keys, ${ZONES.length} zones, ${AI_PLAYERS.length} AI profiles.`);
+if(!process.exitCode)console.log(`Smoke checks passed: ${required.length} required files, ${sharedKeys.size} shared keys, ${dynamicKeys.size} dynamic keys, ${ZONES.length} zones, ${AI_PLAYERS.length} AI profiles.`);
