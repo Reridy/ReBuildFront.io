@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#10151d" />
   <title>RE:BUILDFRONT</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .research-list{display:grid;gap:7px;max-height:360px;overflow:auto;padding-right:2px}.research-item{display:grid!important;grid-template-columns:1fr auto;gap:4px 8px;text-align:left}.research-item span{display:grid}.research-item span small{color:var(--muted);font-size:10px}.research-item em{font-style:normal;color:#bfe8ff;font-size:12px}.research-item p{grid-column:1/-1;margin:2px 0 0;color:var(--muted);font-size:11px;line-height:1.35}.research-item.done{border-color:#4e745f;background:#14241c}.research-item:disabled:not(.done){opacity:.48}.build-item.locked{opacity:.55}.weapon-card strong{color:#f4e7c0}.research-tip{margin:8px 0 12px;color:var(--muted);font-size:11px;line-height:1.4}
+  </style>
 </head>
 <body>
   <main class="app-shell">
@@ -21,46 +24,20 @@
     </header>
 
     <section class="hud-grid">
-      <article class="hud-card core-card">
-        <span>HEART</span>
-        <strong id="heartHp">1000 / 1000</strong>
-        <div class="meter"><i id="heartBar"></i></div>
-      </article>
-      <article class="hud-card">
-        <span>WAVE</span>
-        <strong id="waveText">준비 중</strong>
-        <small id="phaseText">탐색 단계</small>
-      </article>
-      <article class="hud-card">
-        <span>RESOURCES</span>
-        <strong><b id="woodText">0</b> Wood · <b id="stoneText">0</b> Stone</strong>
-        <small><b id="crystalText">0</b> Crystal</small>
-      </article>
-      <article class="hud-card">
-        <span>TEAM</span>
-        <strong id="teamText">1 Player + 3 AI</strong>
-        <small id="scoreText">Score 0</small>
-      </article>
-      <article class="hud-card dash-card">
-        <span>DASH</span>
-        <strong id="dashText">READY</strong>
-        <div class="meter dash-meter"><i id="dashBar"></i></div>
-      </article>
+      <article class="hud-card core-card"><span>HEART</span><strong id="heartHp">1000 / 1000</strong><div class="meter"><i id="heartBar"></i></div></article>
+      <article class="hud-card"><span>WAVE</span><strong id="waveText">준비 중</strong><small id="phaseText">탐색 단계</small></article>
+      <article class="hud-card"><span>RESOURCES</span><strong><b id="woodText">0</b> Wood · <b id="stoneText">0</b> Stone</strong><small><b id="crystalText">0</b> Crystal</small></article>
+      <article class="hud-card"><span>TEAM</span><strong id="teamText">1 Player + 3 AI</strong><small id="scoreText">Score 0</small></article>
+      <article class="hud-card dash-card"><span>DASH</span><strong id="dashText">READY</strong><div class="meter dash-meter"><i id="dashBar"></i></div></article>
+      <article class="hud-card weapon-card"><span>WEAPON</span><strong id="weaponText">SWORD</strong><small>원거리 무기 연구 후 <kbd>Q</kbd> 전환</small></article>
     </section>
 
     <section class="game-layout">
       <aside class="side-panel left-panel">
         <h2>BUILD</h2>
         <div class="build-list" id="buildList"></div>
-        <div id="buildInfo" class="build-info empty">
-          <strong>건물 선택 없음</strong>
-          <p>건물을 선택하면 토대 크기와 기능 설명이 표시됩니다.</p>
-        </div>
-        <div class="panel-note">
-          <b>건축:</b> 항목 선택 → 격자 슬롯 클릭<br />
-          <b>선택 해제:</b> 같은 숫자키/버튼 다시 누르기<br />
-          <b>철거:</b> 우클릭
-        </div>
+        <div id="buildInfo" class="build-info empty"><strong>건물 선택 없음</strong><p>벽과 함정은 처음부터, 터렛과 발전기는 연구 후 사용할 수 있습니다.</p></div>
+        <div class="panel-note"><b>건축:</b> 항목 선택 → 격자 슬롯 클릭<br /><b>선택 해제:</b> 같은 숫자키/버튼 다시 누르기<br /><b>철거:</b> 우클릭</div>
       </aside>
 
       <section class="arena-wrap">
@@ -72,22 +49,15 @@
       <aside class="side-panel right-panel">
         <h2>SQUAD</h2>
         <div id="squadList" class="squad-list"></div>
-        <div class="panel-note ai-note">AI 동료는 상황과 역할을 스스로 판단해 전투, 수리, 건축, 채집을 수행합니다.</div>
-        <h2>UPGRADES</h2>
-        <div class="upgrade-list">
-          <button id="upgradeWeapon">무기 강화 <small>25 crystal</small></button>
-          <button id="upgradeHeart">HEART 강화 <small>40 crystal</small></button>
-          <button id="upgradeTeam">AI 훈련 <small>30 crystal</small></button>
-        </div>
+        <div class="panel-note ai-note">AI 플레이어도 일반 플레이어로 취급됩니다. 고정 직업은 없으며 상황에 따라 전투·수리·채집을 스스로 선택합니다.</div>
+        <h2>RESEARCH</h2>
+        <p class="research-tip">Crystal을 사용해 새로운 무기·터렛·전력망과 방어 능력을 해금합니다. 연구 방향에 따라 같은 요새도 전혀 다르게 성장합니다.</p>
+        <div id="researchList" class="research-list"></div>
       </aside>
     </section>
 
     <footer class="controls">
-      <span><kbd>WASD</kbd> 이동</span>
-      <span><kbd>Mouse</kbd> 조준</span>
-      <span><kbd>LMB</kbd> 공격/건축</span>
-      <span><kbd>1-4</kbd> 건축 선택/해제</span>
-      <span><kbd>Space</kbd> 대시</span>
+      <span><kbd>WASD</kbd> 이동</span><span><kbd>Mouse</kbd> 조준</span><span><kbd>LMB</kbd> 검 공격/사격/건축</span><span><kbd>1-4</kbd> 건축 선택/해제</span><span><kbd>Q</kbd> 무기 전환</span><span><kbd>Space</kbd> 대시</span>
     </footer>
   </main>
 
@@ -95,19 +65,21 @@
     <form method="dialog">
       <button class="dialog-close" aria-label="닫기">×</button>
       <h2>RE:BUILDFRONT</h2>
-      <p>자원을 모아 격자형 토대 위에 요새를 만들고, 자율 AI 동료와 함께 HEART를 방어하세요.</p>
+      <p>초반에는 검과 기본 방어 구조물만으로 버티고, 전투에서 얻는 Crystal로 연구를 진행해 요새와 무장을 발전시키세요.</p>
       <ul>
-        <li>벽·터렛·함정은 1×1 슬롯, 발전기는 2×2 슬롯을 사용합니다.</li>
-        <li>벽은 플레이어와 AI 모두 통과할 수 없습니다.</li>
-        <li>터렛과 함정은 발전기 범위 안에서 더 강해집니다.</li>
-        <li>AI 동료는 별도 명령 없이 역할과 상황에 맞춰 스스로 행동합니다.</li>
-        <li>Space 대시는 짧은 무적 이동이 아니라 빠른 이동 기술이며, HUD에서 쿨다운을 확인할 수 있습니다.</li>
+        <li>적의 제1 목표는 항상 HEART이며, 제2 목표는 인간과 AI를 포함한 모든 플레이어입니다.</li>
+        <li>벽·터렛·함정·발전기에는 체력이 있으며 적의 공격으로 파괴될 수 있습니다.</li>
+        <li>처음에는 검을 사용합니다. 원거리 무기 연구 후 카빈을 해금하고 Q로 전환할 수 있습니다.</li>
+        <li>터렛은 자동 터렛 연구, 발전기는 전력망 연구를 완료해야 건설할 수 있습니다.</li>
+        <li>강화벽, 반격 장갑, 구조 보강, 현장 수리처럼 건축물 자체를 변화시키는 연구도 있습니다.</li>
+        <li>AI와 플레이어에게 고정 직업은 없습니다. 대신 협동 플레이에서는 자연스럽게 역할을 나누는 것이 좋습니다. 예를 들어 한 명은 자원 확보, 한 명은 전선 수리, 다른 한 명은 전투와 방어를 맡는 식으로 상황에 따라 역할을 바꾸세요.</li>
+        <li>Space 대시는 빠른 이동 기술이며 상단 DASH 바에서 재사용 시간을 확인할 수 있습니다.</li>
         <li>5번째 웨이브마다 보스가 등장합니다.</li>
       </ul>
-      <p class="tip">목표: 가능한 오래 버티면서 더 강한 방어선을 설계하세요.</p>
+      <p class="tip">목표: HEART를 지키면서 연구 방향을 선택하고, 상황에 맞는 요새를 설계하세요.</p>
     </form>
   </dialog>
 
-  <script type="module" src="src/game.js"></script>
+  <script type="module" src="src/game-v3.js"></script>
 </body>
 </html>
