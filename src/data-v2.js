@@ -7,7 +7,7 @@ export const ITEM_DEFS={
  armorJacket:{name:'Reinforced Shell',kind:'armor',stack:1,icon:'◈',defense:.15,desc:'Single-slot armor that reduces incoming damage.'},
  wood:{name:'Wood',kind:'resource',stack:99,icon:'▥'},stone:{name:'Stone',kind:'resource',stack:99,icon:'⬟'},fiber:{name:'Fiber',kind:'resource',stack:99,icon:'≋'},iron:{name:'Iron',kind:'resource',stack:99,icon:'◆'},crystal:{name:'Crystal',kind:'resource',stack:99,icon:'✦'},quartz:{name:'Quartz',kind:'resource',stack:99,icon:'◇'},herb:{name:'Herb',kind:'resource',stack:99,icon:'♧'},resin:{name:'Resin',kind:'resource',stack:99,icon:'●'},scrap:{name:'Scrap',kind:'resource',stack:99,icon:'⌁'},copper:{name:'Copper',kind:'resource',stack:99,icon:'⬢'},
  plank:{name:'Board',kind:'material',stack:99,icon:'▤'},cord:{name:'Cord',kind:'material',stack:99,icon:'〰'},metalPlate:{name:'Metal Plate',kind:'material',stack:99,icon:'▣'},circuit:{name:'Circuit',kind:'material',stack:99,icon:'⌘'},
- workbench:{name:'Workbench',kind:'placeable',stack:16,icon:'▧',gridW:2,gridH:2,hp:180,color:'#8a6c4d'},grandWorkbench:{name:'Grand Workbench',kind:'placeable',stack:8,icon:'▨',gridW:3,gridH:3,hp:320,color:'#756a82'},wallPack:{name:'Wall Blueprint Pack',kind:'build',stack:32,icon:'▥'},trapPack:{name:'Trap Blueprint Pack',kind:'build',stack:16,icon:'⌗'},turretPack:{name:'Turret Blueprint Pack',kind:'build',stack:8,icon:'◎'},generatorPack:{name:'Generator Blueprint Pack',kind:'build',stack:8,icon:'◉'}
+ workbench:{name:'Workbench',kind:'placeable',stack:16,icon:'▧',gridW:2,gridH:2,hp:180,color:'#8a6c4d'},grandWorkbench:{name:'Grand Workbench',kind:'placeable',stack:8,icon:'▨',gridW:3,gridH:3,hp:320,color:'#756a82'},wallPack:{name:'Wall Blueprint Pack',kind:'build',stack:32,icon:'▥'},generatorPack:{name:'Generator Blueprint Pack',kind:'build',stack:8,icon:'◉'}
 };
 export const RECIPES=[
  {id:'board',size:2,pattern:[['wood',null],[null,null]],out:{id:'plank',count:2}},
@@ -18,7 +18,6 @@ export const RECIPES=[
  {id:'metalPlate',size:3,pattern:[['iron','iron',null],['iron','iron',null],[null,null,null]],out:{id:'metalPlate',count:1}},
  {id:'circuit',size:3,pattern:[['copper','quartz','copper'],['scrap','crystal','scrap'],[null,'copper',null]],out:{id:'circuit',count:1}},
  {id:'grandWorkbench',size:3,pattern:[['metalPlate','plank','metalPlate'],['plank','workbench','plank'],['metalPlate','plank','metalPlate']],out:{id:'grandWorkbench',count:1}},
- {id:'turretPack',size:4,pattern:[['metalPlate','metalPlate',null,null],['circuit','crystal',null,null],['metalPlate','copper',null,null],[null,null,null,null]],out:{id:'turretPack',count:1}},
  {id:'generatorPack',size:4,pattern:[['copper','circuit','copper',null],['metalPlate','crystal','metalPlate',null],['copper','quartz','copper',null],[null,null,null,null]],out:{id:'generatorPack',count:1}}
 ];
 export function makeInventory(size=36){return Array.from({length:size},()=>null)}
