@@ -1,296 +1,246 @@
-# RE:BUILDFRONT — Game Design Document
+# RE:BUILDFRONT — Current Game Design
 
-## 1. High concept
-RE:BUILDFRONT is a browser-first cooperative sandbox defense game where players gather resources, build a fortress, command AI teammates, survive adaptive invasions, and later fight other player factions in PvP/PvPvE modes.
+## High concept
 
-Core promise: **Build the fortress. Hold the front. Rebuild after the fall.**
+RE:BUILDFRONT is a browser-first cooperative sandbox defense game built around a simple promise:
 
-## 2. Design pillars
-1. **Player-built battlefields** — walls, chokepoints, traps, turrets, power networks and bridges change how combat plays.
-2. **Cooperation without waiting** — every 4-player squad is filled with AI allies until real players join.
-3. **Readable chaos** — attacks are dangerous and destructive, but players are given warnings and recovery windows.
-4. **Short-session depth** — a satisfying run should work in roughly 20–35 minutes while supporting endless play.
-5. **One simulation, many modes** — PvE, PvP and PvPvE share construction, combat, AI and resource systems.
+**Players create the battlefield, then survive inside it.**
 
-## 3. Core PvE loop
-Explore → Gather → Craft/Upgrade → Build → Threat Warning → Defend → Repair → Expand → Boss → Extract or Endless.
+The team explores a divided map, gathers and transports resources, crafts field equipment, constructs a fortress around HEART, and survives increasingly destructive invasions. Human and AI-controlled player slots follow the same core rules; there are no permanent classes.
 
-### Phase structure
-- Preparation: 25–40 seconds early, shrinking later.
-- Warning: 5–10 seconds, showing likely attack direction.
-- Invasion: enemy wave until cleared or timer expires.
-- Recovery: folded into the next preparation period.
+## Core loop
 
-## 4. The HEART
-The HEART is the shared core and fail condition.
+**Explore → Gather → Carry → Deposit → Craft → Research → Build → Defend → Repair → Expand**
+
+The important design difference is the **Carry** step. Harvested resources do not immediately become team currency. They enter personal inventory and must be returned to HEART or, after research, a forward depot. This creates meaningful logistics routes and risk outside the fortress.
+
+## Session structure
+
+A survival session cycles through:
+
+1. **Preparation** — gather, craft, build and repair.
+2. **Warning** — short invasion warning.
+3. **Wave** — enemies assault HEART and players.
+4. **Overtime** — if the normal wave timer ends while enemies remain, the invasion continues until the living wave is cleared.
+5. **Recovery** — a shorter rebuilding window before the next warning.
+
+Enemies are never deleted merely because a timer expired.
+
+## HEART
+
+HEART is the shared objective and team resource bank.
+
 - Base HP: 1000.
-- Upgradable maximum HP and utility.
-- Higher tiers unlock tech but raise threat.
-- If destroyed, the run ends.
+- Destroyed HEART ends the run.
+- Deposited resources are available for construction, research and revival.
+- HEART Plating increases survivability.
+- The immediate area around HEART is protected from construction to prevent accidental hard-locks.
 
-Future HEART branches:
-- Bastion: defense and shielding.
-- Forge: crafting and automation.
-- Beacon: scouting and map intelligence.
-- Overdrive: high-risk combat bonuses.
+## Players and AI
 
-## 5. Player
-Default controls:
-- WASD movement.
-- Mouse aim.
-- Left click attack/build.
-- 1–4 construction hotkeys.
-- Space dash.
+The current room cap is **15 total slots**, including AI.
 
-Player combat is deliberately simple so attention can stay on base design and team coordination.
+AI players are not Builder/Vanguard/Gatherer classes. They are ordinary player slots controlled by autonomous logic. Depending on the situation they may:
 
-## 6. AI teammate backfill
-A squad always targets four active slots.
-- 1 human → 3 AI.
-- 2 humans → 2 AI.
-- 3 humans → 1 AI.
-- 4 humans → no backfill.
+- engage a nearby threat,
+- gather resources,
+- collect dropped resources,
+- return resources to a deposit point,
+- remain around the defensive area when no higher-priority task exists.
 
-A joining human inherits the bot slot conceptually. Server implementation should later transfer inventory, role context and location when safe.
+Human teams are encouraged to divide work dynamically—exploration, hauling, construction, repair, scouting and defense—without choosing permanent jobs.
 
-Initial AI personalities:
-- **MIKA / Builder** — repairs, reinforces and constructs standard defenses.
-- **RON / Vanguard** — prioritizes enemies threatening players and the HEART.
-- **EVE / Gatherer** — finds and harvests resource nodes.
+## Death and revival
 
-Squad orders:
-- Follow.
-- Defend HEART.
-- Gather resources.
-- Prioritize repairs.
+Human and AI players can reach 0 HP and enter a dead/down state.
 
-AI must be helpful but not optimal. Human creativity should remain the strongest strategic advantage.
+- Dead players cannot move or interact normally.
+- Revival consumes shared resources from the team bank.
+- AI teammates can be revived from the squad UI.
+- The local player receives a dedicated revival/result overlay.
+- Revival is intentionally an economic decision, not an automatic timer.
 
-## 7. Resources
-Initial resources:
-- Wood: fast construction and basic structures.
-- Stone: durable defenses.
-- Crystal: upgrades, advanced structures and high-value rewards.
+## Enemy priorities
 
-Future resources:
-- Alloy.
-- Bio-resin.
-- Rift fragments.
+Strategic priority:
 
-## 8. Construction
-Initial buildables:
-- Wall — cheap blocker.
-- Turret — automated ranged defense.
-- Trap — local damage zone.
-- Generator — powers nearby defenses.
+1. **HEART** — the primary objective.
+2. **Human or AI players** — enemies engage players when they are a relevant immediate threat/contact.
+3. **Blocking structures** — buildings are breached when they obstruct the route.
 
-Future construction categories:
-- Gates, ramps, bridges, bunkers, watchtowers.
-- Repair stations and med bays.
-- Barracks and AI unit production.
-- Conveyors and automated harvesting.
-- Sensors and radar.
-- Shield projectors.
+Enemies and players use physical collision, so narrow passages, body blocking and congestion matter.
 
-Design rule: every structure should affect pathing, combat, economy or information. Avoid decorative-only complexity in the first major release.
+## World and resources
 
-## 9. Power network
-Advanced defenses become stronger inside generator range. Later versions should support:
-- Limited generation capacity.
-- Power priority.
-- Grid sabotage.
-- Emergency batteries.
+The current `test` map is split into six regions:
 
-This creates meaningful internal base layout instead of only exterior walls.
+| Zone | Main resources |
+|---|---|
+| Greenwood | Wood, Fiber |
+| Stonefall Quarry | Stone, Iron |
+| Crystal Reach | Crystal, Quartz |
+| Verdant Mire | Herb, Resin |
+| Heartlands | Wood, Stone |
+| Old Scrapyard | Scrap, Copper |
 
-## 10. Enemy roster
-- Grunt — standard attacker.
-- Runner — fast pressure unit.
-- Brute — wall breaker.
-- Spitter — ranged attacker.
-- Boss — major structure threat.
+Resource types:
 
-Future adaptive enemies:
-- Climber — bypasses short walls.
-- Digger — opens new breach routes.
-- Flyer — ignores ground pathing.
-- Saboteur — targets power and automation.
-- Architect — alters or disables player-built paths.
+- Wood
+- Stone
+- Fiber
+- Iron
+- Crystal
+- Quartz
+- Herb
+- Resin
+- Scrap
+- Copper
 
-## 11. Adaptive invasion director
-The mature version should measure dominant player defense patterns and alter enemy composition.
-Examples:
-- Heavy wall stacking → more brutes.
-- Long chokepoints → ranged or area attackers.
-- Exposed power hubs → saboteurs.
-- Tall/vertical defenses → climbers or flyers.
+The map is intentionally asymmetric so teams need to leave the safe center and establish transport routes.
 
-Goal: no single fortress layout remains permanently optimal.
+## Inventory and crafting
 
-## 12. Procedural world
-Future maps are seed-based and combine:
-- Forests.
-- Ruins.
-- Frozen regions.
-- Mire.
-- Ashlands.
-- Rift zones.
+- 36 inventory slots.
+- Slots 1–9 double as the hotbar.
+- One armor slot.
+- Starting hotbar: field tool, survey tool, Builder Kit.
+- Pocket crafting: 2×2.
+- Workbench: 3×3.
+- Grand Workbench: 4×4.
 
-Distance from HEART increases both risk and reward.
+The crafting interface uses grid-based recipes as a familiar interaction pattern, but all names, assets, recipes and UI presentation are RE:BUILDFRONT-specific.
 
-## 13. Progression
-### In-run
-- Weapon upgrades.
-- HEART upgrades.
-- AI training.
-- Tech branches.
-- Structure tiers.
+## Construction
 
-### Account/meta
-Prefer horizontal unlocks and cosmetics over raw power.
-- Character skins.
-- Fortress themes.
-- Banners.
-- Emotes.
-- Blueprint slots.
-- New side-grade technologies.
+Current fortress/support structures:
 
-Do not create pay-to-win advantages.
+### Wall
+Cheap 1×1 blocker. Core tool for shaping movement and buying time.
 
-## 14. Blueprint system
-Players can save fortress sections and deploy them as translucent construction plans.
-AI Builders can complete blueprints when resources are available.
+### Generator
+2×2 power structure required for powered support infrastructure.
 
-Long-term community features:
-- Public blueprint gallery.
-- Ratings and favorites.
-- Featured weekly builds.
-- Creator attribution.
+### Repair Relay
+1×1 support structure. When powered, it repairs nearby damaged structures.
 
-## 15. PvP — Siege
-Recommended first PvP mode: 4v4 or 6v6.
-Each faction owns a HEART and builds a fortress.
-Neutral resource zones encourage contesting the middle of the map.
-Win condition: destroy the opposing HEART.
+### Supply Depot
+2×1 logistics structure unlocked through research. Allows resources to be deposited away from HEART and shortens hauling routes.
 
-Player kills create temporary advantage but do not directly win the match.
+### Workbench / Grand Workbench
+Crafted and physically placed production stations that unlock larger crafting grids nearby.
 
-### AI in PvP
-Two AI layers exist:
-1. **Player-slot bots** filling missing humans.
-2. **Faction units** produced and commanded by the team.
+Construction rules:
 
-Faction units:
-- Worker.
-- Soldier.
-- Ranger.
-- Defender.
-- Engineer.
-- Raider.
-- Heavy.
-- Medic.
+- Exact grid-cell occupancy.
+- Cannot overlap existing structures.
+- Cannot be placed over living players, AI players or active monsters.
+- Cannot be placed in HEART clearance.
+- Placement preview communicates valid/invalid location.
+- Damaged buildings show HP; full-health buildings do not add visual clutter.
 
-Players issue area orders instead of micro-managing every unit.
+## Research
 
-## 16. PvPvE — Frontier War
-Two player factions compete while an independent hostile horde attacks both.
-Strategic tension:
-- Push the enemy too hard and your own fortress becomes exposed.
-- Temporary cooperation may become rational during world bosses.
-- Neutral objectives provide economic leverage.
+Research uses banked Crystal and is centered on fortification, infrastructure and team resilience rather than fixed combat classes.
 
-## 17. Larger modes
-- Fortress: 16-player cooperative megabase defense.
-- Grand War: 12v12 faction warfare with AI armies.
-- Endless: escalating PvE survival.
-- Challenge Seeds: identical world seeds with weekly leaderboards.
+Current branches include:
 
-## 18. Networking principles
-The server must be authoritative for:
-- Player position validation.
-- Damage and health.
-- Resource inventory.
-- Building placement/destruction.
-- AI decisions.
-- Wave state.
-- Score and victory state.
+- Reinforced Wall I / II
+- Structural Fortification
+- HEART Plating
+- Power Grid
+- Field Repair
+- Logistics
+- Rescue Protocol
+- Resource Surveying
 
-Clients send input intent, not final outcomes.
-Target simulation rate: 20–30 Hz server tick with interpolated rendering on clients.
+See `RESEARCH_SYSTEM.md` for exact intent.
 
-## 19. Anti-cheat baseline
-- Clamp movement input.
-- Server-side cooldowns.
-- Server-side build cost checks.
-- Server-side collision/path validation.
-- Rate-limit commands.
-- Never trust client-reported kills, currency or damage.
+## Interface principles
 
-## 20. Visual direction
-Browser-friendly low-poly/chunky tactical style.
-Goals:
-- Strong silhouettes.
-- Clear faction colors.
-- Minimal texture dependence.
-- Good performance on integrated GPUs.
-- Readable at small browser sizes.
+1. **The battlefield stays dominant.** Side information should not cover the arena unnecessarily.
+2. **Only actionable damage is highlighted.** Full-health building HP bars remain hidden.
+3. **State is visible.** Wave phase, timer/overtime, HEART HP, zone, dash cooldown and score remain in the primary HUD.
+4. **Mobile is first-class.** Touch controls are a separate input layer rather than a shrunken desktop-only UI.
+5. **Errors recover visibly.** Unexpected browser errors produce a recovery screen instead of appearing as a frozen site.
+6. **Reduced motion and contrast options matter.** Accessibility preferences should change presentation without changing game rules.
 
-The current prototype uses a top-down 2D presentation to validate gameplay before committing to a heavier 2.5D/3D renderer.
+## Chat
 
-## 21. Audio direction
-- Construction should feel tactile and fast.
-- Wave warning should be immediately recognizable.
-- HEART damage needs a distinct alarm layer.
-- Music intensity rises with threat, not simply time.
+Game chat supports:
 
-## 22. Live-service expansion
-Potential seasonal arcs:
-- The Awakening — baseline enemies and ruins.
-- Machine Age — automation and machine faction.
-- Below — underground regions and diggers.
-- Shattered Skies — aerial threats and vertical construction.
+- global messages,
+- overhead chat bubbles,
+- `/w <player> <message>` whispers,
+- distinct whisper styling.
 
-Every season should add a mechanic, not only cosmetics.
+Lobby chat is separate from in-match chat and is part of the room state/UI rather than a DOM patch layer.
 
-## 23. Monetization principles
-If monetized, focus on cosmetics:
-- Character skins.
-- Building themes.
-- HEART skins.
-- Emotes.
-- Banners.
-- Victory effects.
+## Room flow
 
-Avoid selling combat stats, stronger AI, resource multipliers in competitive modes, or other pay-to-win advantages.
+- Browse open rooms.
+- Search/filter rooms.
+- QuickPlay.
+- Optional same-language preference, default OFF.
+- Create a room with name, description, map, difficulty and total slots.
+- Hard cap: 15 total slots.
+- Host may add/remove AI players within the room cap.
+- Non-host human players ready up.
+- Host starts only when human readiness conditions are satisfied.
+- Start button performs a 5-second countdown before entering gameplay.
+- Customization can be opened while keeping room state.
+- Other room-leaving navigation asks for confirmation.
 
-## 24. Prototype acceptance criteria
-The first playable milestone is successful when a new player can:
-1. Open the page with no install.
-2. Move and aim immediately.
-3. Harvest wood/stone.
-4. Place at least four useful structures.
-5. Understand the HEART objective.
-6. See three AI allies perform distinct roles.
-7. Survive multiple escalating waves.
-8. Encounter a boss.
-9. Upgrade combat/team/core capabilities.
-10. Restart and try a different fortress layout.
+## Mobile
 
-## 25. Production roadmap
-### Milestone A — Gameplay proof (current branch)
-Top-down local PvE loop, AI allies, structures, waves and upgrades.
+Mobile input includes:
 
-### Milestone B — Networked co-op
-Authoritative server, room join, input replication, state interpolation, human/AI slot takeover.
+- virtual movement stick,
+- action button,
+- dash,
+- use/interact,
+- inventory,
+- chat,
+- BUILD and SQUAD drawers,
+- touch hotbar selection,
+- minimap interaction.
 
-### Milestone C — Deep construction
-Grid/pathing, gates, power capacity, blueprints and structural destruction.
+Landscape is recommended for control space, but portrait mode remains available.
 
-### Milestone D — Content
-Biomes, procedural maps, more enemy families, bosses, events, progression.
+## Networking direction
 
-### Milestone E — PvP/PvPvE
-Siege, faction AI, neutral objectives, anti-cheat hardening and matchmaking.
+The current static client is still local-first. `server/` is the authoritative multiplayer foundation and should ultimately own:
 
-### Milestone F — Release polish
-Accounts, persistence, analytics, accessibility, onboarding, mobile/touch option, performance budgets, moderation and live operations.
+- room membership,
+- AI slots,
+- movement validation,
+- health/damage,
+- resources and inventory,
+- construction and destruction,
+- wave state,
+- chat visibility,
+- victory/defeat state.
+
+The server already implements room/AI/chat/account primitives, but the GitHub Pages client is not yet a full synchronized multiplayer client. That is the next production architecture milestone rather than a hidden claim of current functionality.
+
+## Monetization direction
+
+No pay-to-win progression.
+
+Suitable future monetization surfaces:
+
+- character cosmetics,
+- building themes,
+- banners,
+- emotes,
+- HEART cosmetics,
+- cosmetic template packs.
+
+Rewarded ads may unlock optional convenience/cosmetic actions such as a customization image upload, but production rewards must be validated by a real ad provider.
+
+## Production priorities after this prototype
+
+1. Deploy authoritative server and connect the browser client.
+2. Replace local obstacle avoidance with robust grid pathfinding/breach planning where needed.
+3. Add additional maps with unique layouts and resource pressure.
+4. Add persistence, moderation and analytics suitable for a public service.
+5. Expand enemies, events, research side-grades and fortress modules without undermining readability.

@@ -2,26 +2,55 @@
 
 **Build the fortress. Hold the front. Rebuild after the fall.**
 
-RE:BUILDFRONT is a browser-first cooperative sandbox defense game prototype. Players gather resources, construct a fortress, fight escalating invasions, and command AI teammates that fill empty co-op slots.
+RE:BUILDFRONT is a browser-first cooperative sandbox defense game. Players explore a multi-zone map, gather and transport resources, construct a fortress around HEART, survive escalating invasions, and cooperate with human or AI players.
 
-## Current playable prototype
+## Current playable build
 
-- Top-down browser gameplay with no installation.
-- WASD movement, mouse aiming/shooting and dash.
-- Wood/stone resource gathering.
-- Four construction types: wall, turret, trap and generator.
-- Three AI teammates with distinct roles: Builder, Vanguard and Gatherer.
-- Squad orders: follow, defend, gather and repair.
-- Escalating enemy waves with runners, brutes, ranged enemies and bosses.
-- Shared HEART objective and game-over state.
-- Weapon, HEART and AI upgrades.
-- Endless replay loop and score system.
+- Browser-first desktop and mobile controls.
+- Main menu with Play, Account, Customize and Settings.
+- English, Korean, Japanese and Chinese localization with browser-language detection.
+- Room browser, QuickPlay, room creation, host controls, readiness, lobby chat, AI slot filling and a 5-second start countdown.
+- Current room cap: **15 total players**, including AI.
+- Guest play plus account-server foundation for signup/login/preferences/delete-account.
+- Character customization with drawing, stickers, templates and image-upload reward gate.
+- 36-slot inventory, 1–9 hotbar, one armor slot and 2×2 / 3×3 / 4×4 crafting tiers.
+- Six map zones and ten resource types with zone-specific gathering.
+- Gathered resources drop into the world, enter personal inventory, and must be deposited at HEART or an unlocked forward depot.
+- Classless squad design: human and AI players share the same basic rules and choose responsibilities dynamically.
+- Dynamic player/AI/enemy collision and building occupancy checks.
+- Player and AI death with resource-funded revival.
+- Walls, generators, repair relays, depots, workbenches and grand workbenches.
+- Building damage and HP indicators that appear only when damaged.
+- Research for stronger walls, HEART protection, power, repair, logistics, rescue support and resource surveying.
+- Enemy waves that attack HEART, engage players, break blocking structures and enter overtime instead of disappearing when the timer expires.
+- Pause flow, result screen, score, wave tracking, tutorials, minimap expansion and map waypoints.
+- Global chat, whisper syntax (`/w <player> <message>`) and overhead chat bubbles.
+- Mobile virtual movement stick and touch actions.
+- Runtime error boundary instead of a permanently frozen screen on unexpected client errors.
 
-## Play locally
+## Controls
 
-The client is static. Serve the repository root with any local HTTP server, then open `index.html` through that server.
+### Desktop
 
-Examples:
+| Input | Action |
+|---|---|
+| WASD | Move |
+| Mouse | Aim / select world position |
+| Left click | Context action / gather / interact / build |
+| F | Gather or deposit nearby resources |
+| 1–9 | Select hotbar slot |
+| E | Open/close inventory |
+| Space | Dash |
+| Enter | Focus chat |
+| Esc | Pause / close active overlay |
+
+### Mobile
+
+Touch devices receive a virtual movement stick, action, dash, use, inventory and chat controls. BUILD and SQUAD panels can be opened as mobile drawers. Landscape orientation is recommended but portrait remains supported.
+
+## Local client
+
+The static client can be served from the repository root:
 
 ```bash
 python -m http.server 8080
@@ -33,23 +62,11 @@ or
 npx serve .
 ```
 
-Then visit the local address printed by the server.
+Open the address printed by the server.
 
-## Controls
+## Multiplayer/account server foundation
 
-| Input | Action |
-|---|---|
-| WASD | Move |
-| Mouse | Aim |
-| Left click | Shoot / place selected building |
-| Right click | Dismantle building |
-| 1–4 | Select building |
-| X | Cancel building selection |
-| Space | Dash |
-
-## Multiplayer server foundation
-
-`server/` contains the first authoritative Socket.IO room-server foundation for the networked version.
+`server/` contains the Node.js + Socket.IO service used as the network foundation.
 
 ```bash
 cd server
@@ -57,55 +74,70 @@ npm install
 npm start
 ```
 
-The server currently demonstrates:
-- 4-slot rooms.
-- Human player joins.
-- Automatic AI backfill.
-- Input-intent messages instead of client-authoritative movement.
-- Server tick/state broadcast structure.
-- Squad orders.
+Server-side capabilities currently include:
 
-The current browser prototype is intentionally local-first while the gameplay loop is validated. The next engineering milestone is wiring the client to the authoritative server and moving combat/build/resource simulation server-side.
+- Rooms with a hard cap of 15 total slots.
+- Human joins, host transfer, ready state and room configuration.
+- Host-managed AI slots.
+- Room/global chat and private whisper delivery.
+- 20 Hz movement state foundation.
+- Signup/login with salted `scrypt` password hashes.
+- Session expiry and basic authentication rate limiting.
+- Account preference storage and account deletion.
+- Production-safe ad-reward gating behavior when no provider is configured.
 
-## Game modes planned
+The public GitHub Pages build is static, so true online rooms, persistent accounts and server-authoritative simulation require deploying `server/` separately and connecting the client to that deployment.
 
-- **Survival** — 1–4 humans with AI backfill versus escalating invasions.
-- **Endless** — survival with infinite scaling.
-- **Siege** — player factions construct bases and attack the opposing HEART.
-- **Frontier War** — PvPvE with two player factions plus an independent hostile horde.
-- **Fortress** — larger cooperative megabase defense.
-- **Grand War** — large-team PvP with faction AI armies.
-
-## Project structure
+## Canonical project structure
 
 ```text
 .
 ├─ index.html
-├─ styles.css
+├─ manifest.webmanifest
+├─ overhaul.css
+├─ quality.css
+├─ mobile.css
 ├─ src/
-│  ├─ config.js
-│  └─ game.js
+│  ├─ app.js              # menus, rooms, account/customize/settings flow
+│  ├─ game.js             # playable game runtime
+│  ├─ config.js           # world, zones, buildings, enemies, research
+│  ├─ data.js             # inventory, crafting, maps, room constants
+│  ├─ i18n.js             # localization
+│  ├─ mobile-controls.js  # mobile input layer
+│  └─ error-boundary.js   # fatal client error recovery UI
 ├─ server/
-│  ├─ package.json
 │  └─ server.js
-├─ docs/
-│  └─ GAME_DESIGN.md
-└─ .github/workflows/
-   └─ pages.yml
+├─ scripts/
+│  └─ smoke.mjs
+└─ docs/
+   ├─ GAME_DESIGN.md
+   ├─ RESEARCH_SYSTEM.md
+   └─ QUALITY_AUDIT.md
 ```
 
-## Design document
+There is intentionally only one canonical app runtime (`src/app.js`) and one canonical game runtime (`src/game.js`). Versioned legacy runtimes and DOM-patch lobby scripts were removed during the product-wide quality pass.
 
-See [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md) for the full gameplay vision, AI design, PvP/PvPvE architecture, progression, construction systems, anti-cheat principles and production roadmap.
+## Quality gates
 
-## Development philosophy
+Pull requests run `.github/workflows/quality.yml`, which checks:
 
-The long-term vision is large, but development proceeds from a validated core loop:
+- JavaScript syntax for browser/server/smoke-test modules.
+- Product smoke invariants and referenced-file existence.
+- Localization coverage for literal UI keys used by the canonical runtime.
+- 15-player cap consistency.
+- Required map/AI/building/research data.
+- Server dependency installation.
 
-**Explore → Gather → Build → Defend → Repair → Expand**
+## Design direction
 
-Every large feature should strengthen that loop rather than add complexity for its own sake.
+The core loop is:
+
+**Explore → Gather → Carry → Deposit → Craft → Build → Defend → Repair → Expand**
+
+The design favors creative fortification, logistics and teamwork rather than fixed player classes. Empty room slots may be filled by autonomous AI, but skilled human cooperation should remain the strongest option.
+
+See [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md) and [`docs/QUALITY_AUDIT.md`](docs/QUALITY_AUDIT.md).
 
 ## Status
 
-Early playable prototype / pre-alpha.
+Playable pre-alpha. The local/static game is substantially feature-complete for prototype validation; the largest remaining production milestone is deploying and wiring the authoritative online backend for true multi-user synchronization.

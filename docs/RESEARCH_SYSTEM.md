@@ -1,89 +1,68 @@
-# RE:BUILDFRONT Research & Combat Progression
+# RE:BUILDFRONT — Research System
 
-## Design goal
+## Purpose
 
-A match should not begin with every advanced tool already available. Players start vulnerable with swords, walls and traps, then decide how the team's fortress evolves by spending Crystal earned during combat.
+Research should change how the team builds and operates the fortress, not lock players into permanent classes. Human and AI players remain classless; research upgrades shared infrastructure, survivability, logistics and information.
 
-The system is intentionally classless. Human and AI players are all players; no permanent Builder, Vanguard or Gatherer jobs exist. In co-op, players are encouraged to divide responsibilities dynamically rather than select locked classes.
+Research primarily spends banked **Crystal**, creating a tradeoff between immediate construction/revival needs and long-term team improvements.
 
-## Enemy strategic priority
-
-1. HEART / Core
-2. Human or AI player
-3. Structures are not strategic objectives by themselves. They are siege obstacles. When a wall, turret, trap or generator blocks the direct assault route to the HEART, enemies attack and destroy it to continue advancing.
-
-This means defensive construction matters without making enemies forget the actual objective.
-
-## Starting kit
-
-Unlocked at match start:
-- Sword
-- Wall
-- Trap
-- Resource gathering
-- Dash
-
-Locked at match start:
-- Carbine / ranged weapon
-- Automatic turret
-- Generator / powered defenses
-
-## Research currency
-
-Crystal is gained primarily from defeating enemies and occasionally while gathering. It is deliberately shared with some advanced construction costs, creating tension between immediate defenses and long-term technology.
-
-## Weapon branch
-
-### Ranged Weapons — 12 Crystal
-Unlocks the Carbine for human and AI players. The human player can switch Sword / Carbine with Q.
-
-### Automatic Turret — 18 Crystal
-Requires Ranged Weapons. Unlocks 1x1 automatic turret construction.
-
-### Power Grid — 18 Crystal
-Requires Automatic Turret. Unlocks the 2x2 Generator and powered defenses.
-
-### Overcharge — 24 Crystal
-Requires Power Grid. Powered turret damage +45%; powered trap damage +30%.
-
-## Defense branch
+## Current research
 
 ### Reinforced Wall I — 10 Crystal
-Wall maximum HP +35%. Existing walls scale immediately while retaining their HP percentage.
+- Increases wall maximum HP.
+- Existing walls retain their current HP percentage when their maximum HP changes.
 
 ### Reinforced Wall II — 20 Crystal
-Requires Reinforced Wall I. Adds another +35% wall HP.
-
-### Reactive Armor — 16 Crystal
-Requires Reinforced Wall I. Enemies that melee a wall receive return damage.
+- Requires Reinforced Wall I.
+- Adds a second wall durability upgrade.
 
 ### Structural Fortification — 24 Crystal
-Requires Reinforced Wall II. All constructed structures take 20% less damage.
-
-## Support branch
-
-### Field Repair — 14 Crystal
-Outside active invasion waves, damaged structures regenerate slowly.
+- Requires Reinforced Wall II.
+- Reduces damage taken by constructed structures.
 
 ### HEART Plating — 22 Crystal
-HEART max HP +350 and immediately restores 350 HP.
+- Increases HEART maximum HP.
+- Restores part of HEART HP immediately when researched.
 
-### Combat Training — 18 Crystal
-AI player maximum HP and combat effectiveness increase. This is not a class or role; it upgrades all AI-controlled player slots equally.
+### Power Grid — 14 Crystal
+- Unlocks Generator construction.
+- Establishes the prerequisite for powered support structures.
 
-## Future research extensions
+### Field Repair — 16 Crystal
+- Requires Power Grid.
+- Unlocks Repair Relay construction.
+- Powered relays restore nearby damaged structures over time.
 
-The intended production version should grow beyond flat stat boosts. Examples:
+### Logistics — 18 Crystal
+- Unlocks Supply Depot construction.
+- Depots act as forward resource deposit points, reducing long-distance hauling pressure.
 
-- Wall gates that open for allies but stop enemies
-- Electrified walls connected to generators
-- Armor types resistant to brute damage but vulnerable to ranged siege
-- Turret modules: rapid-fire, piercing, splash, slow-field
-- Trap modules: spikes, stun plate, fire field, knockback pad
-- Generator modules: larger radius, backup battery, overload explosion
-- Sword research: wider arc, parry window, dash strike
-- Carbine research: burst fire, armor penetration, marking targets
-- Repair drones and logistics automation
-- Research mutually exclusive choices to create distinct team builds
+### Rescue Protocol — 18 Crystal
+- Improves the team's recovery/revival economy and is intended to make late-wave squad recovery less punishing without turning revival into an automatic timer.
 
-The long-term goal is that two teams reaching Wave 10 can have visibly different fortresses and combat styles even with the same map seed.
+### Resource Surveying — 14 Crystal
+- Improves map/resource intelligence.
+- Supports clearer scouting and resource-route planning on the minimap.
+
+## Research design rules
+
+1. **No mandatory player class.** Research affects the team, structures or shared systems.
+2. **Prefer new decisions over flat numbers.** A depot that changes hauling routes is more interesting than a generic +5% stat.
+3. **Preserve early vulnerability.** The team should not begin with all infrastructure already unlocked.
+4. **Make map knowledge valuable.** Exploration upgrades should help players decide where to go, not simply increase passive income.
+5. **Avoid pay-to-win coupling.** Research is earned inside the session, not purchased as combat power.
+6. **Keep branches readable.** Every upgrade should have an obvious practical reason to exist.
+
+## Future side-grade candidates
+
+These are design candidates, not current runtime promises:
+
+- Ally-passable gates.
+- Backup generator batteries.
+- Relay specialization: larger radius vs faster repair.
+- Depot specialization: larger deposit radius vs limited local crafting access.
+- Emergency HEART shielding with a long cooldown.
+- Resource scanners that reveal one chosen zone rather than the entire map.
+- Mutually exclusive fortress doctrines so two teams can reach the same wave with visibly different infrastructure.
+
+The long-term goal is that research changes **fortress shape, logistics and team decisions**, not merely the size of damage numbers.
