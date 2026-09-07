@@ -59,6 +59,8 @@ const ZH={
 };
 
 export const STRINGS={en:{...EN},ko:{...EN,...KO},ja:{...EN,...JA},zh:{...EN,...ZH}};
+const RESOURCE_IDS=['wood','stone','fiber','iron','crystal','quartz','herb','resin','scrap','copper'];
+for(const table of Object.values(STRINGS))for(const id of RESOURCE_IDS)table[`item_${id}`]=table[`res_${id}`];
 
 export function createI18n(){
   let lang=detectLanguage();
