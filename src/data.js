@@ -16,18 +16,11 @@ export const ITEM_DEFS={
 
 const recipe=(id,station,ingredients,out,category='misc')=>({id,station,ingredients,out,category});
 export const RECIPES=[
- recipe('plank','hand',{wood:1},{id:'plank',count:4},'material'),recipe('cord','hand',{fiber:2},{id:'cord',count:1},'material'),
- recipe('workbench','hand',{plank:4},{id:'workbench',count:1},'station'),recipe('hammer','workbench',{plank:2,iron:2,cord:1},{id:'hammer',count:1},'tool'),recipe('researchBench','workbench',{plank:6,iron:4,circuit:1,crystal:2},{id:'researchBench',count:1},'station'),
+ recipe('plank','workbench',{wood:1},{id:'plank',count:4},'material'),recipe('cord','workbench',{fiber:2},{id:'cord',count:1},'material'),
+ recipe('workbench','workbench',{plank:4},{id:'workbench',count:1},'station'),recipe('hammer','workbench',{plank:2,iron:2,cord:1},{id:'hammer',count:1},'tool'),recipe('researchBench','workbench',{plank:6,iron:4,circuit:1,crystal:2},{id:'researchBench',count:1},'station'),
  recipe('wallItem','workbench',{plank:4,stone:2},{id:'wallItem',count:2},'building'),recipe('generatorItem','workbench',{metalPlate:3,copper:5,circuit:1,crystal:2},{id:'generatorItem',count:1},'building'),recipe('relayItem','workbench',{plank:2,iron:3,copper:2,circuit:1},{id:'relayItem',count:1},'building'),recipe('depotItem','workbench',{plank:8,iron:2,cord:2},{id:'depotItem',count:1},'building'),
  recipe('metalPlate','workbench',{iron:4},{id:'metalPlate',count:1},'material'),recipe('circuit','workbench',{copper:3,quartz:1,scrap:2,crystal:1},{id:'circuit',count:1},'material'),recipe('armorShell','workbench',{metalPlate:5,fiber:2},{id:'armorShell',count:1},'armor'),
- ...['wood','stone','copper','iron','crystal'].flatMap((tier,i)=>{
-   const mat=tier,qty=2+i>3?3:2;
-   return [
-    recipe(`${tier}Sword`,'workbench',{[mat]:qty,plank:1},{id:`${tier}Sword`,count:1},'weapon'),
-    recipe(`${tier}Pickaxe`,'workbench',{[mat]:3,plank:2},{id:`${tier}Pickaxe`,count:1},'tool'),
-    recipe(`${tier}Axe`,'workbench',{[mat]:3,plank:2},{id:`${tier}Axe`,count:1},'tool')
-   ];
- })
+ ...['wood','stone','copper','iron','crystal'].flatMap((tier,i)=>{const mat=tier,qty=(2+i)>3?3:2;return [recipe(`${tier}Sword`,'workbench',{[mat]:qty,plank:1},{id:`${tier}Sword`,count:1},'weapon'),recipe(`${tier}Pickaxe`,'workbench',{[mat]:3,plank:2},{id:`${tier}Pickaxe`,count:1},'tool'),recipe(`${tier}Axe`,'workbench',{[mat]:3,plank:2},{id:`${tier}Axe`,count:1},'tool')]} )
 ];
 
 export function makeInventory(size=36){return Array.from({length:size},()=>null)}
