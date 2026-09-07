@@ -1,0 +1,52 @@
+name: One-off Quality Patch
+
+on:
+  push:
+    branches:
+      - feat/full-quality-pass
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[auto-quality-patch]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/full-quality-pass
+          fetch-depth: 0
+      - name: Apply final runtime fixes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/game.js')
+          text = path.read_text(encoding='utf-8')
+
+          old = "if(block.hp<=0)burst(block.x,block.y,'#9f8d78',10)"
+          new = "if(block.hp<=0){if(['workbench','researchBench'].includes(block.type))drop(BUILDINGS[block.type].item,1,block.x,block.y);burst(block.x,block.y,'#9f8d78',10)}"
+          if old not in text:
+              raise SystemExit('expected structure-destruction block not found')
+          text = text.replace(old, new, 1)
+
+          old = "function renderDeath(){if(!S||!U.deathPanel)return;const dead=S.player.dead;U.deathPanel.classList.toggle('hidden',!dead||S.over);if(!dead||S.over)return;const cost=reviveCost();U.deathPanel.innerHTML=`<div class=\"death-card\"><h2>${tt('down')}</h2><p>${Object.entries(cost).map(([k,v])=>`${esc(itemLabel(k))} ${Math.floor(S.bank[k]||0)}/${v}`).join(' · ')}</p><button id=\"selfRevive\" class=\"btn primary\" ${canRevive()?'':'disabled'}>${tt('revive')}</button>${!canRevive()?`<small>${tt('reviveNeed')}</small>`:''}<button id=\"giveUp\" class=\"btn\">${tt('giveUp')}</button></div>`;U.deathPanel.querySelector('#selfRevive').onclick=()=>revive(S.player);U.deathPanel.querySelector('#giveUp').onclick=()=>finish('wipe')}"
+          new = "function renderDeath(){if(!S||!U.deathPanel)return;const dead=S.player.dead,cost=reviveCost(),affordable=canRevive(),sig=`${dead}|${S.over}|${affordable}|${Object.entries(cost).map(([k,v])=>`${k}:${Math.floor(S.bank[k]||0)}:${v}`).join('|')}`;if(S.cache.death===sig)return;S.cache.death=sig;U.deathPanel.classList.toggle('hidden',!dead||S.over);if(!dead||S.over)return;U.deathPanel.innerHTML=`<div class=\"death-card\"><h2>${tt('down')}</h2><p>${Object.entries(cost).map(([k,v])=>`${esc(itemLabel(k))} ${Math.floor(S.bank[k]||0)}/${v}`).join(' · ')}</p><button id=\"selfRevive\" class=\"btn primary\" ${affordable?'':'disabled'}>${tt('revive')}</button>${!affordable?`<small>${tt('reviveNeed')}</small>`:''}<button id=\"giveUp\" class=\"btn\">${tt('giveUp')}</button></div>`;U.deathPanel.querySelector('#selfRevive').onclick=()=>revive(S.player);U.deathPanel.querySelector('#giveUp').onclick=()=>finish('wipe')}"
+          if old not in text:
+              raise SystemExit('expected renderDeath function not found')
+          text = text.replace(old, new, 1)
+
+          if 'ctx.strokeWidth=2' not in text:
+              raise SystemExit('expected canvas line-width typo not found')
+          text = text.replace('ctx.strokeWidth=2', 'ctx.lineWidth=2', 1)
+
+          path.write_text(text, encoding='utf-8')
+      - name: Commit patched runtime and remove one-off workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/one-off-quality-patch.yml
+          git add src/game.js
+          git commit -m "fix: close final quality edge cases [auto-quality-patch]"
+          git push origin HEAD:feat/full-quality-pass
