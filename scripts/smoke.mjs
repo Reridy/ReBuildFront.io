@@ -16,7 +16,6 @@ for(const file of forbidden)assert(!exists(file),`legacy file should be removed:
 const html=read('index.html');
 for(const ref of ['overhaul.css','quality.css','mobile.css','src/error-boundary.js','src/app.js','src/game.js','src/mobile-controls.js'])assert(html.includes(ref),`index.html does not reference ${ref}`);
 for(const stale of forbidden)assert(!html.includes(stale),`index.html still references ${stale}`);
-
 for(const m of html.matchAll(/(?:src|href)="([^"]+)"/g)){
   const ref=m[1];
   if(/^(https?:|data:|#)/.test(ref))continue;
@@ -27,7 +26,7 @@ const manifest=JSON.parse(read('manifest.webmanifest'));
 assert(manifest.name?.includes('RE:BUILDFRONT'),'manifest name is missing');
 assert(manifest.display==='standalone','manifest should use standalone display');
 
-const [{SUPPORTED_LANGUAGES,STRINGS},{MAX_ROOM_PLAYERS,MAPS},{ZONES,AI_PLAYERS,BUILDINGS,RESEARCH}]=await Promise.all([
+const [{SUPPORTED_LANGUAGES,STRINGS},{MAX_ROOM_PLAYERS,MAPS,ITEM_DEFS},{ZONES,AI_PLAYERS,BUILDINGS,RESEARCH,RESOURCES}]=await Promise.all([
   import(pathToFileURL(path.join(root,'src/i18n.js'))),
   import(pathToFileURL(path.join(root,'src/data.js'))),
   import(pathToFileURL(path.join(root,'src/config.js')))
@@ -45,7 +44,7 @@ const app=read('src/app.js'),game=read('src/game.js'),server=read('server/server
 assert(app.includes('MAX_ROOM_PLAYERS'),'app must consume shared room cap');
 assert(app.includes('countdown'),'app should contain lobby countdown logic');
 assert(app.includes('lobbyChat'),'app should contain integrated lobby chat');
-assert(game.includes("phase='overtime'")||game.includes("phase:\'overtime\'")||game.includes("'overtime'"),'game should support overtime instead of deleting living enemies');
+assert(game.includes("'overtime'")||game.includes('"overtime"'),'game should support overtime instead of deleting living enemies');
 assert(game.includes('paused'),'game should expose pause state');
 assert(game.includes('waypoint'),'game should expose minimap waypoint state');
 assert(server.includes('const MAX_PLAYERS=15'),'server room cap must be 15');
@@ -53,6 +52,14 @@ assert(server.includes("socket.on('add-ai'")&&server.includes("socket.on('remove
 
 const literalKeys=new Set();
 for(const source of [app,game])for(const m of source.matchAll(/\bt\(['"]([A-Za-z0-9_]+)['"]\)/g))literalKeys.add(m[1]);
-for(const key of literalKeys)for(const lang of SUPPORTED_LANGUAGES)assert(Object.prototype.hasOwnProperty.call(STRINGS[lang],key),`missing ${lang} translation for ${key}`);
+const dynamicKeys=new Set([
+  ...Object.keys(RESOURCES).map(id=>`res_${id}`),
+  ...ZONES.map(z=>`zone_${z.id}`),
+  ...Object.keys(BUILDINGS).map(id=>`build_${id}`),
+  ...Object.keys(RESEARCH).map(id=>`research_${id}`),
+  ...Object.keys(ITEM_DEFS).map(id=>ITEM_DEFS[id].kind==='resource'?`res_${id}`:`item_${id}`)
+]);
+for(const key of [...literalKeys,...dynamicKeys])for(const lang of SUPPORTED_LANGUAGES)assert(Object.prototype.hasOwnProperty.call(STRINGS[lang],key),`missing ${lang} translation for ${key}`);
+assert(STRINGS.ko.unready==='준비중','Korean unready state must read 준비중');
 
-if(!process.exitCode)console.log(`Smoke checks passed: ${required.length} required files, ${literalKeys.size} literal i18n keys, ${ZONES.length} zones, ${AI_PLAYERS.length} AI profiles.`);
+if(!process.exitCode)console.log(`Smoke checks passed: ${required.length} required files, ${literalKeys.size} literal keys, ${dynamicKeys.size} dynamic keys, ${ZONES.length} zones, ${AI_PLAYERS.length} AI profiles.`);
