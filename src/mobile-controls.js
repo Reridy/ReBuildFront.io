@@ -71,7 +71,7 @@ function init(){
   action.addEventListener('pointerdown',actionDown);action.addEventListener('pointerup',actionUp);action.addEventListener('pointercancel',actionUp);
 
   layer.querySelector('[data-mobile="dash"]').onclick=()=>{blurEditor();tapKey(' ','Space')};
-  layer.querySelector('[data-mobile="interact"]').onclick=()=>{blurEditor();tapKey('f','KeyF')};
+  layer.querySelector('[data-mobile="interact"]').onclick=()=>{blurEditor();tapKey('e','KeyE')};
   layer.querySelector('[data-mobile="inventory"]').onclick=()=>{blurEditor();tapKey('e','KeyE')};
   layer.querySelector('[data-mobile="chat"]').onclick=()=>{const input=gameRoot.querySelector('#chatInput');input?.focus();input?.scrollIntoView?.({block:'nearest'})};
 
