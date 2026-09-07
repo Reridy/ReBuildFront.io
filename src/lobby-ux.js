@@ -21,7 +21,7 @@ function captureRoomCapacity(){
  root?.querySelectorAll('[data-join]').forEach(btn=>{if(btn.dataset.capHook)return;btn.dataset.capHook='1';btn.addEventListener('click',()=>{const card=btn.closest('.room-card');const m=card?.innerText.match(/(\d+)\s*\/\s*(\d+)/);const cap=Math.max(1,Math.min(15,Number(m?.[2])||15));sessionStorage.setItem('rbf.roomMax',String(cap));window.dispatchEvent(new Event('rbf-room-cap'))},{capture:true})});
 }
 function fixWaitingLabel(){if(lang()!=='ko')return;root?.querySelectorAll('.lobby-grid .player-row span:not(.ready)').forEach(s=>{if(s.textContent.trim()==='준비 취소')s.textContent='준비중'})}
-function roomLeave(){if(countdownTimer)clearInterval(countdownTimer);countdownActive=false;sessionStorage.removeItem('rbf.aiCount');sessionStorage.removeItem('rbf.roomMax');const play=root?.querySelector('[data-nav="play"]');if(play)play.click()}
+function roomLeave(){if(countdownTimer)clearInterval(countdownTimer);countdownActive=false;window.dispatchEvent(new Event('rbf-leave-room'))}
 function addLobbyControls(){
  const lobby=root?.querySelector('.lobby-grid');if(!lobby)return;
  const content=lobby.parentElement;if(!content)return;
@@ -35,8 +35,7 @@ function addLobbyControls(){
  renderChat();
 }
 function renderChat(){const log=root?.querySelector('#rbfLobbyChatLog');if(log){log.innerHTML=messages.slice(-50).map(m=>`<div><b>${esc(m.name)}</b>: ${esc(m.text)}</div>`).join('');log.scrollTop=log.scrollHeight}}
-function interceptMenu(){root?.querySelectorAll('.side-nav [data-nav]').forEach(btn=>{if(btn.dataset.leaveHook)return;btn.dataset.leaveHook='1';btn.addEventListener('click',e=>{if(!root.querySelector('.lobby-grid'))return;const dest=btn.dataset.nav;if(dest==='play'){e.preventDefault();e.stopImmediatePropagation();return}if(dest==='customize')return;if(!confirm(t('leaveWarn'))){e.preventDefault();e.stopImmediatePropagation();return}sessionStorage.removeItem('rbf.aiCount');sessionStorage.removeItem('rbf.roomMax')},{capture:true})})}
 function hookStartCountdown(){const start=root?.querySelector('#startGame');if(!start||start.dataset.countdownHook)return;start.dataset.countdownHook='1';start.addEventListener('click',e=>{if(start.dataset.countdownBypass==='1'){delete start.dataset.countdownBypass;return}if(start.disabled||countdownActive)return;e.preventDefault();e.stopImmediatePropagation();countdownActive=true;start.disabled=true;let left=5;const box=root.querySelector('#rbfCountdown');const paint=()=>{if(box){box.textContent=`${t('starting')} ${left}`;box.classList.remove('hidden')}start.textContent=`${left}`};paint();countdownTimer=setInterval(()=>{left--;if(left>0){paint();return}clearInterval(countdownTimer);countdownTimer=null;countdownActive=false;if(box)box.classList.add('hidden');start.dataset.countdownBypass='1';start.disabled=false;start.click()},1000)},{capture:true})}
-function apply(){captureRoomCapacity();fixWaitingLabel();addLobbyControls();interceptMenu();hookStartCountdown()}
+function apply(){captureRoomCapacity();fixWaitingLabel();addLobbyControls();hookStartCountdown()}
 function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;apply()})}
 const obs=new MutationObserver(schedule);if(root)obs.observe(root,{childList:true,subtree:true});window.addEventListener('rbf-language',schedule);apply();
