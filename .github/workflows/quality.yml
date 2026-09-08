@@ -16,6 +16,8 @@ jobs:
           for f in src/*.js scripts/*.mjs; do node --check "$f"; done
       - name: Run product smoke checks
         run: node scripts/smoke.mjs
+      - name: Check customization storage migration
+        run: node scripts/customize-storage-smoke.mjs
       - name: Check server
         run: node --check server/server.js
       - name: Install server dependencies
