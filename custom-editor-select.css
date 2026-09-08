@@ -1,0 +1,1 @@
+#psSelectOverlay{z-index:4;pointer-events:none}.ps-deselect{margin-left:auto}.ps-transform-hint{font-size:9px;line-height:1.35;opacity:.78}.ps-tools [data-advanced-tool].primary{box-shadow:0 0 0 1px var(--accent) inset;background:rgba(70,157,198,.18)}@media(max-width:800px){.ps-transform-hint{width:100%;order:10}.ps-deselect{margin-left:0}}
