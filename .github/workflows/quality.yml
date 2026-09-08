@@ -18,6 +18,8 @@ jobs:
         run: node scripts/smoke.mjs
       - name: Check customization storage migration
         run: node scripts/customize-storage-smoke.mjs
+      - name: Check layered customization studio
+        run: node scripts/custom-editor-smoke.mjs
       - name: Check server
         run: node --check server/server.js
       - name: Install server dependencies
