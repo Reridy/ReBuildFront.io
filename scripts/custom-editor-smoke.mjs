@@ -1,0 +1,9 @@
+import fs from 'node:fs';
+const code=fs.readFileSync(new URL('../src/custom-editor.js',import.meta.url),'utf8');
+const css=fs.readFileSync(new URL('../custom-editor.css',import.meta.url),'utf8');
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const need=(token,msg)=>{if(!code.includes(token)){console.error(`CUSTOM EDITOR FAIL: ${msg}`);process.exitCode=1}};
+for(const [token,msg] of [['rbf.customProjects.v1','project storage'],['selectedLayer','layer selection'],['visible','layer visibility'],['locked','layer locking'],['opacity','layer opacity'],['data-act="addLayer"','add layer'],['data-act="dupLayer"','duplicate layer'],['data-act="delLayer"','delete layer'],['data-act="undo"','undo'],['data-act="redo"','redo'],['data-tool="brush"','brush'],['data-tool="eraser"','eraser'],['data-tool="eyedropper"','eyedropper'],['psZoom','zoom'],['psImageImport','image import'],['psJsonImport','project import'],['exportPng','PNG export'],['exportJson','project export'],['data-sticker','stickers'],['rbf-custom-active','active-avatar integration'],['rbf-start-game','game integration'],['setTimeout(()=>save(false),650)','autosave']])need(token,msg);
+if(!html.includes('custom-editor.css')||!html.includes('src/custom-editor.js')){console.error('CUSTOM EDITOR FAIL: index integration missing');process.exitCode=1}
+if(!css.includes('.ps-layer.active')||!css.includes('.ps-checker')||!css.includes('@media(max-width:800px)')){console.error('CUSTOM EDITOR FAIL: layered/mobile editor styles missing');process.exitCode=1}
+if(!process.exitCode)console.log('Custom editor smoke checks passed.');
